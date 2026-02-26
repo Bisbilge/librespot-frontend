@@ -1,0 +1,81 @@
+.home-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+.home-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 48px;
+}
+
+.home-intro h1 {
+  font-family: 'Linux Libertine', serif;
+  font-size: 32px;
+  font-weight: normal;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+
+.home-tagline {
+  color: var(--text-light);
+  margin-bottom: 24px;
+  font-size: 15px;
+}
+
+.home-stats {
+  display: flex;
+  gap: 32px;
+  padding: 16px;
+  background: var(--accent);
+  border: 1px solid var(--border);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-number {
+  font-size: 28px;
+  font-family: 'Linux Libertine', serif;
+  color: var(--link);
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.home-categories h2 {
+  font-family: 'Linux Libertine', serif;
+  font-size: 20px;
+  font-weight: normal;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+
+.category-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.category-card {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  display: block;
+  font-size: 14px;
+  transition: background 0.15s;
+}
+
+.category-card:hover {
+  background: var(--accent);
+  text-decoration: none;
+}

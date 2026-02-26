@@ -1,0 +1,156 @@
+.navbar {
+  border-bottom: 1px solid var(--nav-border);
+  background: var(--nav-bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.navbar-logo {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-family: 'Linux Libertine', serif;
+  font-size: 22px;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.logo-tagline {
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+.navbar-search {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+}
+
+.navbar-search input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+
+.navbar-search input:focus {
+  border-color: var(--link);
+}
+
+.navbar-search button {
+  padding: 6px 16px;
+  background: var(--nav-bg);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.navbar-search button:hover {
+  background: var(--accent);
+}
+
+.navbar-links {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.navbar-logout {
+  background: none;
+  border: none;
+  color: var(--link);
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+}
+
+.navbar-logout:hover {
+  text-decoration: underline;
+}
+
+.search-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.search-wrapper input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+
+.search-wrapper input:focus {
+  border-color: var(--link);
+}
+
+.search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid var(--border);
+  border-top: none;
+  z-index: 200;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.search-result-item {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 10px 12px;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  font-family: inherit;
+  gap: 2px;
+}
+
+.search-result-item:hover {
+  background: var(--accent);
+}
+
+.search-result-name {
+  font-size: 14px;
+  color: var(--link);
+}
+
+.search-result-desc {
+  font-size: 12px;
+  color: var(--text-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-no-results {
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--text-light);
+}

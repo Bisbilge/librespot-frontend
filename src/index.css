@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Linux+Libertine&family=Source+Sans+3:wght@400;600&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #ffffff;
+  --text: #202122;
+  --text-light: #54595d;
+  --border: #a2a9b1;
+  --link: #3366cc;
+  --link-hover: #6699ff;
+  --accent: #eaf3fb;
+  --header-bg: #ffffff;
+  --nav-bg: #f8f9fa;
+  --nav-border: #a2a9b1;
+}
+
+body {
+  font-family: 'Source Sans 3', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: var(--link-hover);
+}

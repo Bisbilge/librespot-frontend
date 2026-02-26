@@ -1,0 +1,301 @@
+.mod-loading {
+  max-width: 1200px;
+  margin: 32px auto;
+  padding: 0 16px;
+  color: var(--text-light);
+}
+
+.mod-main {
+  height: calc(100vh - 56px);
+  overflow: hidden;
+}
+
+.mod-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  height: 100%;
+}
+
+.mod-sidebar {
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.mod-sidebar h2 {
+  font-family: 'Linux Libertine', serif;
+  font-size: 18px;
+  font-weight: normal;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.mod-count {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-bottom: 12px;
+}
+
+.mod-empty {
+  font-size: 14px;
+  color: var(--text-light);
+}
+
+.mod-list {
+  list-style: none;
+}
+
+.mod-list-item {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: left;
+  padding: 10px 8px;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  gap: 2px;
+}
+
+.mod-list-item:hover {
+  background: var(--accent);
+}
+
+.mod-list-item-active {
+  background: var(--accent);
+  border-left: 3px solid var(--link);
+}
+
+.mod-item-type {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--link);
+}
+
+.mod-item-name {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.mod-item-meta {
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+.mod-content {
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.mod-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-light);
+  font-size: 15px;
+}
+
+.mod-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+
+.mod-detail-header h2 {
+  font-family: 'Linux Libertine', serif;
+  font-size: 26px;
+  font-weight: normal;
+}
+
+.mod-badge {
+  background: var(--accent);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  padding: 3px 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mod-contributor {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 20px;
+}
+
+.mod-section {
+  margin-bottom: 24px;
+}
+
+.mod-section h3 {
+  font-family: 'Linux Libertine', serif;
+  font-size: 18px;
+  font-weight: normal;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+}
+
+.mod-payload-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.mod-payload-table tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.mod-payload-table td {
+  padding: 8px 12px;
+}
+
+.mod-payload-key {
+  color: var(--text-light);
+  width: 35%;
+  background: var(--nav-bg);
+}
+
+.mod-payload-field {
+  color: var(--link);
+  font-style: italic;
+}
+
+.mod-payload-val {
+  font-weight: 500;
+}
+
+.mod-osm-link {
+  font-size: 14px;
+  color: var(--link);
+}
+
+.mod-reject-note {
+  width: 100%;
+  min-height: 80px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  font-family: inherit;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.mod-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.mod-btn-approve {
+  padding: 10px 32px;
+  background: #2e7d32;
+  color: white;
+  border: none;
+  font-size: 15px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.mod-btn-approve:hover {
+  background: #1b5e20;
+}
+
+.mod-btn-approve:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mod-btn-reject {
+  padding: 10px 32px;
+  background: white;
+  color: #c00;
+  border: 1px solid #c00;
+  font-size: 15px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.mod-btn-reject:hover {
+  background: #fff3f3;
+}
+
+.mod-btn-reject:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mod-categories-main {
+  max-width: 800px;
+  margin: 48px auto;
+  padding: 0 16px;
+}
+
+.mod-categories-title {
+  font-family: 'Linux Libertine', serif;
+  font-size: 32px;
+  font-weight: normal;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.mod-categories-desc {
+  color: var(--text-light);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.mod-categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.mod-category-card {
+  border: 1px solid var(--border);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.mod-category-card:hover {
+  background: var(--accent);
+  text-decoration: none;
+}
+
+.mod-category-name {
+  font-size: 16px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.mod-category-count {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+.mod-category-count-active {
+  color: #c00;
+  font-weight: 600;
+}
+
+.mod-back {
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+.mod-manage-mods {
+  font-size: 12px;
+  color: var(--link);
+  margin-top: 4px;
+  text-decoration: underline;
+}

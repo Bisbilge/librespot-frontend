@@ -1,0 +1,236 @@
+.profile-loading {
+  max-width: 1200px;
+  margin: 32px auto;
+  padding: 0 16px;
+  color: var(--text-light);
+}
+
+.profile-main {
+  max-width: 1200px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 48px;
+}
+
+.profile-sidebar {
+  border: 1px solid var(--border);
+  padding: 24px;
+  align-self: start;
+}
+
+.profile-avatar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.avatar-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+
+.avatar-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Linux Libertine', serif;
+  font-size: 32px;
+  color: var(--link);
+}
+
+.profile-username {
+  font-family: 'Linux Libertine', serif;
+  font-size: 24px;
+  font-weight: normal;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.profile-role {
+  font-size: 12px;
+  color: var(--text-light);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+
+.profile-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.profile-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-stat-number {
+  font-family: 'Linux Libertine', serif;
+  font-size: 28px;
+  color: var(--link);
+}
+
+.profile-stat-label {
+  font-size: 12px;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profile-trusted {
+  font-size: 12px;
+  background: #e8f5e9;
+  border: 1px solid #2e7d32;
+  color: #2e7d32;
+  padding: 3px 10px;
+}
+
+.profile-info {
+  margin-bottom: 16px;
+}
+
+.profile-info-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.profile-info-table tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.profile-info-table td {
+  padding: 6px 8px;
+}
+
+.profile-info-table td:first-child {
+  color: var(--text-light);
+  width: 40%;
+}
+
+.profile-edit-btn {
+  width: 100%;
+  padding: 8px;
+  background: white;
+  border: 1px solid var(--border);
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.profile-edit-btn:hover {
+  background: var(--accent);
+}
+
+.profile-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-success {
+  font-size: 13px;
+  color: #2e7d32;
+}
+
+.profile-bio {
+  font-size: 14px;
+  color: var(--text-light);
+  margin-top: 12px;
+  line-height: 1.5;
+}
+
+.profile-content {
+  min-width: 0;
+}
+
+.profile-section-title {
+  font-family: 'Linux Libertine', serif;
+  font-size: 24px;
+  font-weight: normal;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+.profile-empty {
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+.profile-contributions-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.profile-contributions-table th {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--border);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-light);
+}
+
+.profile-contributions-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.contrib-type {
+  font-size: 13px;
+  color: var(--text-light);
+  text-transform: capitalize;
+}
+
+.contrib-status {
+  font-size: 12px;
+  padding: 2px 8px;
+  border: 1px solid;
+}
+
+.contrib-status-pending {
+  background: #fff8e1;
+  border-color: #f9a825;
+  color: #f9a825;
+}
+
+.contrib-status-approved {
+  background: #e8f5e9;
+  border-color: #2e7d32;
+  color: #2e7d32;
+}
+
+.contrib-status-rejected {
+  background: #fff3f3;
+  border-color: #c00;
+  color: #c00;
+}
+
+.contrib-date {
+  font-size: 13px;
+  color: var(--text-light);
+}

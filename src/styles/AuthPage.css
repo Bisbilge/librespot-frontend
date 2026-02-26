@@ -1,0 +1,90 @@
+.auth-main {
+  max-width: 400px;
+  margin: 48px auto;
+  padding: 0 16px;
+}
+
+.auth-box {
+  border: 1px solid var(--border);
+  padding: 32px;
+  background: white;
+}
+
+.auth-title {
+  font-family: 'Linux Libertine', serif;
+  font-size: 26px;
+  font-weight: normal;
+  margin-bottom: 24px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.auth-error {
+  background: #fff3f3;
+  border: 1px solid #c00;
+  color: #c00;
+  padding: 8px 12px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.auth-field label {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+.auth-field input {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+
+.auth-field input:focus {
+  border-color: var(--link);
+}
+
+.auth-field-error {
+  font-size: 12px;
+  color: #c00;
+}
+
+.auth-btn {
+  padding: 10px;
+  background: var(--link);
+  color: white;
+  border: none;
+  font-size: 15px;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.auth-btn:hover {
+  opacity: 0.9;
+}
+
+.auth-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-switch {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-top: 16px;
+  text-align: center;
+}

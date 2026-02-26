@@ -1,0 +1,212 @@
+.venue-loading {
+  max-width: 1200px;
+  margin: 32px auto;
+  padding: 0 16px;
+  color: var(--text-light);
+}
+
+.venue-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.venue-breadcrumb {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 16px;
+}
+
+.venue-breadcrumb a {
+  color: var(--link);
+}
+
+.venue-title {
+  font-family: 'Linux Libertine', serif;
+  font-size: 36px;
+  font-weight: normal;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.venue-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 48px;
+}
+
+.venue-meta-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.venue-tag {
+  font-size: 13px;
+  background: var(--accent);
+  border: 1px solid var(--border);
+  padding: 3px 10px;
+}
+
+.venue-address {
+  font-size: 14px;
+  color: var(--text-light);
+  margin-bottom: 24px;
+}
+
+.venue-fields {
+  margin-bottom: 24px;
+}
+
+.venue-fields h2 {
+  font-family: 'Linux Libertine', serif;
+  font-size: 22px;
+  font-weight: normal;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+}
+
+.fields-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.fields-table tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.fields-table td {
+  padding: 8px 12px;
+}
+
+.field-label {
+  color: var(--text-light);
+  width: 40%;
+}
+
+.field-value {
+  font-weight: 500;
+}
+
+.venue-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.btn-report {
+  background: none;
+  border: 1px solid var(--border);
+  padding: 6px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--text-light);
+}
+
+.btn-report:hover {
+  background: #fff3f3;
+  border-color: #c00;
+  color: #c00;
+}
+
+.report-sent {
+  font-size: 13px;
+  color: green;
+}
+
+.report-form {
+  background: var(--accent);
+  border: 1px solid var(--border);
+  padding: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.report-form h3 {
+  font-family: 'Linux Libertine', serif;
+  font-size: 18px;
+  font-weight: normal;
+}
+
+.report-textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--border);
+  font-family: inherit;
+  font-size: 13px;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.venue-footer {
+  font-size: 12px;
+  color: var(--text-light);
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.venue-map {
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+}
+
+.osm-link {
+  display: block;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-top: 1px solid var(--border);
+  background: var(--nav-bg);
+}
+
+.venue-info-box {
+  border: 1px solid var(--border);
+}
+
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.info-table tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.info-table td {
+  padding: 8px 12px;
+}
+
+.info-table td:first-child {
+  color: var(--text-light);
+  width: 40%;
+  background: var(--nav-bg);
+}
+
+.btn-edit {
+  background: var(--accent);
+  border: 1px solid var(--border);
+  padding: 6px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--link);
+  text-decoration: none;
+}
+
+.btn-edit:hover {
+  background: var(--link);
+  color: white;
+  text-decoration: none;
+}
