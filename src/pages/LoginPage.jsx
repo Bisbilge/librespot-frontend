@@ -32,7 +32,7 @@ function LoginPage() {
       <Navbar />
       <main className="auth-main">
         <div className="auth-box">
-          <h1 className="auth-title">Log in to LibreSpot</h1>
+          <h1 className="auth-title">Log in to Mapedia</h1>
           {error && <div className="auth-error">{error}</div>}
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="auth-field">

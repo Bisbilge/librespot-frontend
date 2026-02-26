@@ -18,9 +18,9 @@ function HomePage() {
       <main className="home-main">
         <div className="home-content">
           <div className="home-intro">
-            <h1>Welcome to LibreSpot</h1>
+            <h1>Welcome to Mapedia</h1>
             <p className="home-tagline">
-              LibreSpot is a free, community-driven encyclopedia of places.
+              Mapedia is a free, community-driven encyclopedia of places.
               Find hidden details about venues that mainstream maps never tell you —
               access codes, wheelchair accessibility, free outlets, and more.
             </p>

@@ -47,7 +47,7 @@ function Navbar() {
     <header className="navbar">
       <div className="navbar-inner">
         <Link to="/" className="navbar-logo">
-          <span className="logo-text">LibreSpot</span>
+          <span className="logo-text">Mapedia</span>
           <span className="logo-tagline">The Free Encyclopedia of Places</span>
         </Link>
         <div className="navbar-search">
