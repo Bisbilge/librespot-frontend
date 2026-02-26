@@ -97,6 +97,7 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
 }
 
 .btn-report {
@@ -209,4 +210,25 @@
   background: var(--link);
   color: white;
   text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .venue-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  /* Show sidebar (map) first on mobile */
+  .venue-sidebar {
+    order: -1;
+  }
+
+  .venue-title {
+    font-size: 26px;
+  }
+
+  .fields-table td {
+    padding: 8px 6px;
+    font-size: 13px;
+  }
 }

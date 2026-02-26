@@ -36,3 +36,11 @@ a:hover {
   text-decoration: underline;
   color: var(--link-hover);
 }
+
+img {
+  max-width: 100%;
+}
+
+input, select, textarea, button {
+  font-family: inherit;
+}

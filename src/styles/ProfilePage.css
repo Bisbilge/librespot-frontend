@@ -103,6 +103,8 @@
   border: 1px solid #2e7d32;
   color: #2e7d32;
   padding: 3px 10px;
+  margin-bottom: 12px;
+  display: inline-block;
 }
 
 .profile-info {
@@ -139,9 +141,7 @@
   margin-bottom: 16px;
 }
 
-.profile-edit-btn:hover {
-  background: var(--accent);
-}
+.profile-edit-btn:hover { background: var(--accent); }
 
 .profile-edit-form {
   display: flex;
@@ -161,18 +161,7 @@
   line-height: 1.5;
 }
 
-.profile-content {
-  min-width: 0;
-}
-
-.profile-section-title {
-  font-family: 'Linux Libertine', serif;
-  font-size: 24px;
-  font-weight: normal;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 8px;
-  margin-bottom: 16px;
-}
+.profile-content { min-width: 0; }
 
 .profile-empty {
   color: var(--text-light);
@@ -183,6 +172,8 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  display: block;
+  overflow-x: auto;
 }
 
 .profile-contributions-table th {
@@ -193,6 +184,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--text-light);
+  white-space: nowrap;
 }
 
 .profile-contributions-table td {
@@ -204,12 +196,14 @@
   font-size: 13px;
   color: var(--text-light);
   text-transform: capitalize;
+  white-space: nowrap;
 }
 
 .contrib-status {
   font-size: 12px;
   padding: 2px 8px;
   border: 1px solid;
+  white-space: nowrap;
 }
 
 .contrib-status-pending {
@@ -233,16 +227,15 @@
 .contrib-date {
   font-size: 13px;
   color: var(--text-light);
+  white-space: nowrap;
 }
 
-/* =====================
-   TABS
-   ===================== */
+/* Tabs */
 .profile-tabs {
   display: flex;
-  gap: 0;
   border-bottom: 2px solid #e5e7eb;
   margin-bottom: 24px;
+  overflow-x: auto;
 }
 
 .profile-tab {
@@ -256,54 +249,20 @@
   font-weight: 500;
   color: #6b7280;
   transition: all 0.15s;
+  white-space: nowrap;
 }
 
-.profile-tab:hover {
-  color: #111827;
-}
+.profile-tab:hover { color: #111827; }
 
 .profile-tab-active {
   color: #4f46e5;
   border-bottom-color: #4f46e5;
 }
 
-/* =====================
-   STATS
-   ===================== */
-.profile-stats {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  margin: 16px 0;
-  flex-wrap: wrap;
-}
-
-.profile-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.profile-stat-number {
-  font-size: 20px;
-  font-weight: 700;
-  color: #111827;
-}
-
-.profile-stat-label {
-  font-size: 11px;
-  color: #9ca3af;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* =====================
-   VENUES GRID
-   ===================== */
+/* Venues Grid */
 .profile-venues-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 12px;
 }
 
@@ -342,12 +301,8 @@
   margin-top: 4px;
 }
 
-/* =====================
-   CATEGORIES
-   ===================== */
-.profile-cat-section {
-  margin-bottom: 28px;
-}
+/* Categories */
+.profile-cat-section { margin-bottom: 28px; }
 
 .profile-cat-title {
   font-size: 14px;
@@ -372,6 +327,8 @@
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   background: white;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .profile-cat-name {
@@ -381,9 +338,7 @@
   font-size: 14px;
 }
 
-.profile-cat-name:hover {
-  color: #4f46e5;
-}
+.profile-cat-name:hover { color: #4f46e5; }
 
 .profile-cat-manage {
   font-size: 13px;
@@ -392,6 +347,28 @@
   font-weight: 500;
 }
 
-.profile-cat-manage:hover {
-  text-decoration: underline;
+.profile-cat-manage:hover { text-decoration: underline; }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .profile-stats {
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+  }
+
+  .profile-venues-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-venues-grid {
+    grid-template-columns: 1fr;
+  }
 }

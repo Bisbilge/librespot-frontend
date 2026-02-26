@@ -108,6 +108,7 @@
   margin-bottom: 8px;
   border-bottom: 1px solid var(--border);
   padding-bottom: 12px;
+  flex-wrap: wrap;
 }
 
 .mod-detail-header h2 {
@@ -171,6 +172,7 @@
 
 .mod-payload-val {
   font-weight: 500;
+  word-break: break-word;
 }
 
 .mod-osm-link {
@@ -191,6 +193,7 @@
 .mod-actions {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .mod-btn-approve {
@@ -203,14 +206,8 @@
   cursor: pointer;
 }
 
-.mod-btn-approve:hover {
-  background: #1b5e20;
-}
-
-.mod-btn-approve:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+.mod-btn-approve:hover { background: #1b5e20; }
+.mod-btn-approve:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .mod-btn-reject {
   padding: 10px 32px;
@@ -222,15 +219,10 @@
   cursor: pointer;
 }
 
-.mod-btn-reject:hover {
-  background: #fff3f3;
-}
+.mod-btn-reject:hover { background: #fff3f3; }
+.mod-btn-reject:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.mod-btn-reject:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
+/* Category list page */
 .mod-categories-main {
   max-width: 800px;
   margin: 48px auto;
@@ -264,13 +256,18 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  text-decoration: none;
   transition: background 0.15s;
 }
 
 .mod-category-card:hover {
   background: var(--accent);
+}
+
+.mod-category-link {
   text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .mod-category-name {
@@ -293,6 +290,7 @@
   margin-bottom: 16px;
   font-size: 13px;
 }
+
 .mod-manage-mods {
   font-size: 12px;
   color: var(--link);
@@ -300,14 +298,12 @@
   text-decoration: underline;
 }
 
-/* =====================
-   TABS
-   ===================== */
+/* Tabs */
 .mod-tabs {
   display: flex;
-  gap: 0;
   border-bottom: 2px solid #e5e7eb;
   margin-bottom: 24px;
+  overflow-x: auto;
 }
 
 .mod-tab {
@@ -321,29 +317,26 @@
   font-weight: 500;
   color: #6b7280;
   transition: all 0.15s;
+  white-space: nowrap;
 }
 
-.mod-tab:hover {
-  color: #111827;
-}
+.mod-tab:hover { color: #111827; }
 
 .mod-tab-active {
   color: #4f46e5;
   border-bottom-color: #4f46e5;
 }
 
-/* =====================
-   FIELD MANAGER
-   ===================== */
-.field-manager {
-  padding: 8px 0;
-}
+/* Field Manager */
+.field-manager { padding: 8px 0; }
 
 .field-manager-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .field-manager-header h3 {
@@ -362,18 +355,16 @@
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s;
 }
 
-.field-btn-add:hover {
-  background: #4338ca;
-}
+.field-btn-add:hover { background: #4338ca; }
 
-/* Table */
 .field-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
+  display: block;
+  overflow-x: auto;
 }
 
 .field-table th {
@@ -386,6 +377,7 @@
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 .field-table td {
@@ -395,9 +387,7 @@
   vertical-align: middle;
 }
 
-.field-table tr:hover td {
-  background: #f9fafb;
-}
+.field-table tr:hover td { background: #f9fafb; }
 
 .field-table code {
   background: #f3f4f6;
@@ -426,12 +416,9 @@
   border-radius: 5px;
   font-size: 12px;
   cursor: pointer;
-  transition: background 0.15s;
 }
 
-.field-btn-edit:hover {
-  background: #e5e7eb;
-}
+.field-btn-edit:hover { background: #e5e7eb; }
 
 .field-btn-delete {
   background: #fee2e2;
@@ -441,20 +428,15 @@
   border-radius: 5px;
   font-size: 12px;
   cursor: pointer;
-  transition: background 0.15s;
 }
 
-.field-btn-delete:hover {
-  background: #fecaca;
-}
+.field-btn-delete:hover { background: #fecaca; }
 
-/* =====================
-   MODAL
-   ===================== */
+/* Modal */
 .field-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0,0,0,0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -467,6 +449,8 @@
   border-radius: 12px;
   width: 100%;
   max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0,0,0,0.2);
   padding: 24px;
 }
@@ -495,9 +479,7 @@
   padding: 0;
 }
 
-.field-modal-close:hover {
-  color: #374151;
-}
+.field-modal-close:hover { color: #374151; }
 
 .field-error {
   background: #fee2e2;
@@ -508,7 +490,6 @@
   margin-bottom: 16px;
 }
 
-/* Form Grid */
 .field-form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -522,9 +503,7 @@
   gap: 5px;
 }
 
-.field-form-full {
-  grid-column: 1 / -1;
-}
+.field-form-full { grid-column: 1 / -1; }
 
 .field-form-group label {
   font-size: 13px;
@@ -540,7 +519,6 @@
   font-size: 13px;
   color: #111827;
   background: white;
-  transition: border 0.15s;
 }
 
 .field-form-group input:focus,
@@ -561,9 +539,7 @@
   color: #9ca3af;
 }
 
-.field-required {
-  color: #dc2626;
-}
+.field-required { color: #dc2626; }
 
 .field-form-checkboxes {
   grid-column: 1 / -1;
@@ -586,7 +562,6 @@
   cursor: pointer;
 }
 
-/* Modal Actions */
 .field-modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -604,9 +579,7 @@
   cursor: pointer;
 }
 
-.field-btn-cancel:hover {
-  background: #f9fafb;
-}
+.field-btn-cancel:hover { background: #f9fafb; }
 
 .field-btn-save {
   background: #4f46e5;
@@ -617,353 +590,13 @@
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s;
 }
 
-.field-btn-save:hover {
-  background: #4338ca;
-}
+.field-btn-save:hover { background: #4338ca; }
+.field-btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.field-btn-save:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* =====================
-   TABS
-   ===================== */
-.mod-tabs {
-  display: flex;
-  gap: 0;
-  border-bottom: 2px solid #e5e7eb;
-  margin-bottom: 24px;
-}
-
-.mod-tab {
-  padding: 10px 22px;
-  background: none;
-  border: none;
-  border-bottom: 3px solid transparent;
-  margin-bottom: -2px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  color: #6b7280;
-  transition: all 0.15s;
-}
-
-.mod-tab:hover {
-  color: #111827;
-}
-
-.mod-tab-active {
-  color: #4f46e5;
-  border-bottom-color: #4f46e5;
-}
-
-/* =====================
-   FIELD MANAGER
-   ===================== */
-.field-manager {
-  padding: 8px 0;
-}
-
-.field-manager-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.field-manager-header h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #111827;
-  margin: 0;
-}
-
-.field-btn-add {
-  background: #4f46e5;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.field-btn-add:hover {
-  background: #4338ca;
-}
-
-/* Table */
-.field-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.field-table th {
-  text-align: left;
-  padding: 8px 12px;
-  background: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
-  color: #6b7280;
-  font-weight: 600;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.field-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid #f3f4f6;
-  color: #374151;
-  vertical-align: middle;
-}
-
-.field-table tr:hover td {
-  background: #f9fafb;
-}
-
-.field-table code {
-  background: #f3f4f6;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 12px;
-  color: #4f46e5;
-}
-
-.field-help-text {
-  max-width: 180px;
-  color: #9ca3af;
-  font-style: italic;
-}
-
-.field-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.field-btn-edit {
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
-  color: #374151;
-  padding: 4px 12px;
-  border-radius: 5px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.field-btn-edit:hover {
-  background: #e5e7eb;
-}
-
-.field-btn-delete {
-  background: #fee2e2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
-  padding: 4px 12px;
-  border-radius: 5px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.field-btn-delete:hover {
-  background: #fecaca;
-}
-
-/* =====================
-   MODAL
-   ===================== */
-.field-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 16px;
-}
-
-.field-modal {
-  background: white;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 520px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-  padding: 24px;
-}
-
-.field-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.field-modal-header h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #111827;
-  margin: 0;
-}
-
-.field-modal-close {
-  background: none;
-  border: none;
-  font-size: 18px;
-  color: #9ca3af;
-  cursor: pointer;
-  line-height: 1;
-  padding: 0;
-}
-
-.field-modal-close:hover {
-  color: #374151;
-}
-
-.field-error {
-  background: #fee2e2;
-  color: #dc2626;
-  padding: 10px 14px;
-  border-radius: 6px;
-  font-size: 13px;
-  margin-bottom: 16px;
-}
-
-/* Form Grid */
-.field-form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 20px;
-}
-
-.field-form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.field-form-full {
-  grid-column: 1 / -1;
-}
-
-.field-form-group label {
-  font-size: 13px;
-  font-weight: 500;
-  color: #374151;
-}
-
-.field-form-group input,
-.field-form-group select {
-  padding: 8px 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 13px;
-  color: #111827;
-  background: white;
-  transition: border 0.15s;
-}
-
-.field-form-group input:focus,
-.field-form-group select:focus {
-  outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-}
-
-.field-form-group input:disabled,
-.field-form-group select:disabled {
-  background: #f9fafb;
-  color: #9ca3af;
-}
-
-.field-form-group small {
-  font-size: 11px;
-  color: #9ca3af;
-}
-
-.field-required {
-  color: #dc2626;
-}
-
-.field-form-checkboxes {
-  grid-column: 1 / -1;
-  flex-direction: row;
-  gap: 20px;
-}
-
-.field-form-checkboxes label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  font-weight: normal;
-}
-
-.field-form-checkboxes input[type="checkbox"] {
-  width: 15px;
-  height: 15px;
-  padding: 0;
-  cursor: pointer;
-}
-
-/* Modal Actions */
-.field-modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.field-btn-cancel {
-  background: white;
-  border: 1px solid #d1d5db;
-  color: #374151;
-  padding: 8px 18px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.field-btn-cancel:hover {
-  background: #f9fafb;
-}
-
-.field-btn-save {
-  background: #4f46e5;
-  border: none;
-  color: white;
-  padding: 8px 18px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.field-btn-save:hover {
-  background: #4338ca;
-}
-
-.field-btn-save:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* =====================
-   VENUE MANAGER
-   ===================== */
-.venue-manager {
-  padding: 8px 0;
-}
+/* Venue Manager */
+.venue-manager { padding: 8px 0; }
 
 .venue-count {
   font-size: 13px;
@@ -978,7 +611,6 @@
   font-size: 13px;
   width: 200px;
   outline: none;
-  transition: border 0.15s;
 }
 
 .venue-search:focus {
@@ -992,6 +624,50 @@
   font-weight: 500;
 }
 
-.venue-manager-link:hover {
-  color: #4f46e5;
+.venue-manager-link:hover { color: #4f46e5; }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .mod-main {
+    height: auto;
+    overflow: visible;
+  }
+
+  .mod-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .mod-sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    overflow-y: visible;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .mod-content {
+    padding: 16px;
+    overflow-y: visible;
+  }
+
+  .field-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .field-form-full {
+    grid-column: 1;
+  }
+
+  .field-form-checkboxes {
+    grid-column: 1;
+  }
+
+  .venue-search {
+    width: 150px;
+  }
+
+  .mod-categories-title {
+    font-size: 24px;
+  }
 }

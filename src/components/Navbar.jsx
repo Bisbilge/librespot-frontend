@@ -9,11 +9,13 @@ function Navbar() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [showResults, setShowResults] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   function handleLogout() {
     localStorage.removeItem('access')
     localStorage.removeItem('refresh')
     navigate('/')
+    setMenuOpen(false)
   }
 
   function handleSearch(e) {
@@ -43,13 +45,25 @@ function Navbar() {
     }, 150)
   }
 
+  function handleNavClick() {
+    setMenuOpen(false)
+  }
+
   return (
     <header className="navbar">
       <div className="navbar-inner">
-        <Link to="/" className="navbar-logo">
+        <Link to="/" className="navbar-logo" onClick={handleNavClick}>
           <span className="logo-text">Mapedia</span>
           <span className="logo-tagline">The Free Encyclopedia of Places</span>
         </Link>
+
+        <button
+          className="navbar-menu-btn"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle menu"
+        >
+          {menuOpen ? '✕' : '☰'}
+        </button>
 
         <div className="navbar-search">
           <div className="search-wrapper">
@@ -87,21 +101,21 @@ function Navbar() {
           </div>
         </div>
 
-        <nav className="navbar-links">
-          <Link to="/contribute">Contribute</Link>
+        <nav className={`navbar-links${menuOpen ? ' navbar-links-open' : ''}`}>
+          <Link to="/contribute" onClick={handleNavClick}>Contribute</Link>
           {token && (
-            <Link to="/create-category">New Category</Link>
+            <Link to="/create-category" onClick={handleNavClick}>New Category</Link>
           )}
           {token && (
-            <Link to="/moderation">Moderation</Link>
+            <Link to="/moderation" onClick={handleNavClick}>Moderation</Link>
           )}
           {token && (
-            <Link to="/profile" className="navbar-profile">Profile</Link>
+            <Link to="/profile" className="navbar-profile" onClick={handleNavClick}>Profile</Link>
           )}
           {token ? (
             <button onClick={handleLogout} className="navbar-logout">Log out</button>
           ) : (
-            <Link to="/login">Log in</Link>
+            <Link to="/login" onClick={handleNavClick}>Log in</Link>
           )}
         </nav>
       </div>

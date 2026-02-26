@@ -26,6 +26,7 @@ function CategoryMapPage() {
   const [filters, setFilters] = useState({})
   const [loading, setLoading] = useState(true)
   const [filterOpen, setFilterOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   useEffect(() => {
     api.get(`/categories/${slug}/`).then(res => {
@@ -68,7 +69,7 @@ function CategoryMapPage() {
     <div className="map-page">
       <Navbar />
       <div className="map-layout">
-        <aside className="map-sidebar">
+        <aside className={`map-sidebar${sidebarOpen ? '' : ' sidebar-collapsed'}`}>
           <h2>{category ? category.name : '...'}</h2>
           <p className="sidebar-count">{filteredVenues.length} / {venues.length} venues</p>
           {loading ? (
@@ -90,6 +91,13 @@ function CategoryMapPage() {
         </aside>
 
         <div className="map-container">
+          <button
+            className="sidebar-toggle-btn"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            {sidebarOpen ? '◀ Hide List' : '▶ Show List'}
+          </button>
+
           <MapContainer
             center={[39.9, 32.8]}
             zoom={6}
@@ -115,7 +123,6 @@ function CategoryMapPage() {
               ))}
           </MapContainer>
 
-          {/* Filtre butonu */}
           <button
             className={`filter-fab ${activeFilterCount > 0 ? 'filter-fab-active' : ''}`}
             onClick={() => setFilterOpen(true)}
@@ -125,10 +132,9 @@ function CategoryMapPage() {
         </div>
       </div>
 
-      {/* Filtre paneli overlay */}
       {filterOpen && (
-        <div className="filter-overlay">
-          <div className="filter-drawer">
+        <div className="filter-overlay" onClick={() => setFilterOpen(false)}>
+          <div className="filter-drawer" onClick={e => e.stopPropagation()}>
             <div className="filter-drawer-header">
               <h3>Filter {category?.name}</h3>
               <button onClick={() => setFilterOpen(false)} className="filter-close">✕</button>
