@@ -8,12 +8,14 @@ function EditVenuePage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const token = localStorage.getItem('access')
+
   const [venue, setVenue] = useState(null)
   const [fieldDefs, setFieldDefs] = useState([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+
   const [form, setForm] = useState({
     name: '',
     city: '',
@@ -22,16 +24,21 @@ function EditVenuePage() {
     latitude: '',
     longitude: '',
   })
-  const [fieldValues, setFieldValues] = useState({})
 
-  useEffect(function() {
+  // Aktif field'lar: { [field.name]: value }
+  // Sadece buraya eklenenler submit'e gönderilir
+  const [activeFields, setActiveFields] = useState({})
+
+  useEffect(function () {
     if (!token) {
       navigate('/login')
       return
     }
-    api.get('/venues/' + id + '/').then(function(res) {
+
+    api.get('/venues/' + id + '/').then(function (res) {
       const v = res.data
       setVenue(v)
+
       setForm({
         name: v.name || '',
         city: v.city || '',
@@ -40,33 +47,52 @@ function EditVenuePage() {
         latitude: v.latitude || '',
         longitude: v.longitude || '',
       })
+
+      // Mevcut field value'larını aktif listeye al
       const fv = {}
       if (v.field_values) {
-        v.field_values.forEach(function(f) {
-          fv[f.field_name || f.field_label] = f.value
+        v.field_values.forEach(function (f) {
+          fv[f.field_name] = f.value
         })
       }
-      setFieldValues(fv)
-      if (v.category) {
-        api.get('/categories/' + v.category + '/').then(function(res2) {
+      setActiveFields(fv)
+
+      if (v.category_slug) {
+        api.get('/categories/' + v.category_slug + '/').then(function (res2) {
           setFieldDefs(res2.data.field_definitions || [])
         })
       }
+
+      setLoading(false)
+    }).catch(function () {
       setLoading(false)
     })
   }, [id])
 
   function handleChange(e) {
-    const name = e.target.name
-    const value = e.target.value
-    setForm(function(prev) {
+    const { name, value } = e.target
+    setForm(function (prev) {
       return Object.assign({}, prev, { [name]: value })
     })
   }
 
   function handleFieldValue(fieldName, value) {
-    setFieldValues(function(prev) {
+    setActiveFields(function (prev) {
       return Object.assign({}, prev, { [fieldName]: value })
+    })
+  }
+
+  function handleFieldAdd(def) {
+    setActiveFields(function (prev) {
+      return Object.assign({}, prev, { [def.name]: '' })
+    })
+  }
+
+  function handleFieldRemove(fieldName) {
+    setActiveFields(function (prev) {
+      const next = Object.assign({}, prev)
+      delete next[fieldName]
+      return next
     })
   }
 
@@ -75,24 +101,89 @@ function EditVenuePage() {
     setSaving(true)
     setError('')
 
-    api.post('/contributions/venue/' + id + '/edit/', {
-      name: form.name,
-      city: form.city,
-      country: form.country,
-      address: form.address,
-      latitude: form.latitude,
-      longitude: form.longitude,
-      field_values: fieldValues,
-    }, {
-      headers: { Authorization: 'Bearer ' + token }
-    }).then(function() {
+    api.post(
+      '/contributions/venue/' + id + '/edit/',
+      {
+        name: form.name,
+        city: form.city,
+        country: form.country,
+        address: form.address,
+        latitude: form.latitude,
+        longitude: form.longitude,
+        field_values: activeFields,
+      },
+      { headers: { Authorization: 'Bearer ' + token } }
+    ).then(function () {
       setSuccess(true)
       setSaving(false)
-    }).catch(function(err) {
+    }).catch(function (err) {
       setError(JSON.stringify(err.response ? err.response.data : 'Error.'))
       setSaving(false)
     })
   }
+
+  function renderFieldInput(fieldName, fieldDef) {
+    const value = activeFields[fieldName] || ''
+    const type = fieldDef ? fieldDef.field_type : 'string'
+
+    if (type === 'boolean') {
+      return (
+        <select
+          className="filter-select"
+          value={value}
+          onChange={function (e) { handleFieldValue(fieldName, e.target.value) }}
+        >
+          <option value="">Select...</option>
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+      )
+    }
+
+    if (type === 'text') {
+      return (
+        <textarea
+          className="report-textarea"
+          value={value}
+          onChange={function (e) { handleFieldValue(fieldName, e.target.value) }}
+        />
+      )
+    }
+
+    if (type === 'integer' || type === 'decimal') {
+      return (
+        <input
+          type="number"
+          value={value}
+          onChange={function (e) { handleFieldValue(fieldName, e.target.value) }}
+        />
+      )
+    }
+
+    if (type === 'url') {
+      return (
+        <input
+          type="url"
+          value={value}
+          placeholder="https://"
+          onChange={function (e) { handleFieldValue(fieldName, e.target.value) }}
+        />
+      )
+    }
+
+    return (
+      <input
+        type="text"
+        value={value}
+        onChange={function (e) { handleFieldValue(fieldName, e.target.value) }}
+      />
+    )
+  }
+
+  // Kategoride olup henüz aktif olmayan field'lar
+  const availableToAdd = fieldDefs.filter(function (def) {
+    return !activeFields.hasOwnProperty(def.name)
+  })
 
   if (loading) {
     return (
@@ -126,7 +217,7 @@ function EditVenuePage() {
       <main className="contribute-main">
         <div className="contribute-box">
           <div className="venue-breadcrumb">
-            <Link to={'/venue/' + id}>Back to {venue.name}</Link>
+            <Link to={'/venue/' + id}>← Back to {venue.name}</Link>
           </div>
 
           <h1 className="contribute-title">Edit Venue</h1>
@@ -182,36 +273,91 @@ function EditVenuePage() {
             {fieldDefs.length > 0 && (
               <div className="contribute-fields">
                 <h2>Details</h2>
-                {fieldDefs.map(function(field) {
+
+                {Object.keys(activeFields).length === 0 && (
+                  <p className="contribute-desc" style={{ marginBottom: '0.75rem' }}>
+                    No fields added yet. Use the buttons below to add fields.
+                  </p>
+                )}
+
+                {Object.keys(activeFields).map(function (fieldName) {
+                  const def = fieldDefs.find(function (d) { return d.name === fieldName })
+                  const label = def ? def.label : fieldName
+                  const helpText = def ? def.help_text : ''
+                  const isRequired = def ? def.is_required : false
+
                   return (
-                    <div key={field.id} className="auth-field">
-                      <label>{field.label}</label>
-                      {field.field_type === 'boolean' ? (
-                        <select
-                          className="filter-select"
-                          value={fieldValues[field.name] || ''}
-                          onChange={function(e) { handleFieldValue(field.name, e.target.value) }}
+                    <div key={fieldName} className="auth-field">
+                      <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>
+                          {label}
+                          {isRequired && <span style={{ color: '#e53e3e' }}> *</span>}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={function () { handleFieldRemove(fieldName) }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: '#e53e3e',
+                            fontSize: '0.8rem',
+                            fontWeight: 600,
+                            padding: '0 0 0 8px',
+                          }}
                         >
-                          <option value="">Select...</option>
-                          <option value="true">Yes</option>
-                          <option value="false">No</option>
-                        </select>
-                      ) : field.field_type === 'text' ? (
-                        <textarea
-                          className="report-textarea"
-                          value={fieldValues[field.name] || ''}
-                          onChange={function(e) { handleFieldValue(field.name, e.target.value) }}
-                        />
-                      ) : (
-                        <input
-                          type="text"
-                          value={fieldValues[field.name] || ''}
-                          onChange={function(e) { handleFieldValue(field.name, e.target.value) }}
-                        />
+                          ✕ Remove
+                        </button>
+                      </label>
+                      {helpText && (
+                        <small style={{ color: '#718096', marginBottom: '4px', display: 'block' }}>
+                          {helpText}
+                        </small>
                       )}
+                      {renderFieldInput(fieldName, def)}
                     </div>
                   )
                 })}
+
+                {availableToAdd.length > 0 && (
+                  <div style={{ marginTop: '1.5rem' }}>
+                    <h3 style={{ fontSize: '1rem', marginBottom: '0.75rem', color: '#4a5568' }}>
+                      Add Fields
+                    </h3>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      {availableToAdd.map(function (def) {
+                        return (
+                          <button
+                            key={def.id}
+                            type="button"
+                            onClick={function () { handleFieldAdd(def) }}
+                            style={{
+                              padding: '0.35rem 0.85rem',
+                              borderRadius: '999px',
+                              border: '1.5px solid #667eea',
+                              background: 'white',
+                              color: '#667eea',
+                              cursor: 'pointer',
+                              fontSize: '0.85rem',
+                              fontWeight: 500,
+                              transition: 'all 0.15s',
+                            }}
+                            onMouseOver={function (e) {
+                              e.currentTarget.style.background = '#667eea'
+                              e.currentTarget.style.color = 'white'
+                            }}
+                            onMouseOut={function (e) {
+                              e.currentTarget.style.background = 'white'
+                              e.currentTarget.style.color = '#667eea'
+                            }}
+                          >
+                            + {def.label}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

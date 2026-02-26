@@ -50,6 +50,7 @@ function Navbar() {
           <span className="logo-text">Mapedia</span>
           <span className="logo-tagline">The Free Encyclopedia of Places</span>
         </Link>
+
         <div className="navbar-search">
           <div className="search-wrapper">
             <input
@@ -85,8 +86,12 @@ function Navbar() {
             )}
           </div>
         </div>
+
         <nav className="navbar-links">
           <Link to="/contribute">Contribute</Link>
+          {token && (
+            <Link to="/create-category">New Category</Link>
+          )}
           {token && (
             <Link to="/moderation">Moderation</Link>
           )}

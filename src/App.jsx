@@ -9,6 +9,7 @@ import ModerationPage from './pages/ModerationPage'
 import ModeratorsPage from './pages/ModeratorsPage'
 import ProfilePage from './pages/ProfilePage'
 import EditVenuePage from './pages/EditVenuePage'
+import CreateCategoryPage from './pages/CreateCategoryPage'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/contribute" element={<ContributePage />} />
+      <Route path="/create-category" element={<CreateCategoryPage />} />
       <Route path="/moderation" element={<ModerationPage />} />
       <Route path="/moderation/:categorySlug" element={<ModerationPage />} />
       <Route path="/moderation/:categorySlug/moderators" element={<ModeratorsPage />} />

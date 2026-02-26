@@ -234,3 +234,164 @@
   font-size: 13px;
   color: var(--text-light);
 }
+
+/* =====================
+   TABS
+   ===================== */
+.profile-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 24px;
+}
+
+.profile-tab {
+  padding: 10px 22px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  transition: all 0.15s;
+}
+
+.profile-tab:hover {
+  color: #111827;
+}
+
+.profile-tab-active {
+  color: #4f46e5;
+  border-bottom-color: #4f46e5;
+}
+
+/* =====================
+   STATS
+   ===================== */
+.profile-stats {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin: 16px 0;
+  flex-wrap: wrap;
+}
+
+.profile-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.profile-stat-number {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.profile-stat-label {
+  font-size: 11px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* =====================
+   VENUES GRID
+   ===================== */
+.profile-venues-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.profile-venue-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.15s;
+  background: white;
+}
+
+.profile-venue-card:hover {
+  border-color: #4f46e5;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.1);
+}
+
+.profile-venue-name {
+  font-weight: 600;
+  color: #111827;
+  font-size: 14px;
+}
+
+.profile-venue-meta {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.profile-venue-category {
+  font-size: 11px;
+  color: #4f46e5;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+/* =====================
+   CATEGORIES
+   ===================== */
+.profile-cat-section {
+  margin-bottom: 28px;
+}
+
+.profile-cat-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.profile-cat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profile-cat-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+}
+
+.profile-cat-name {
+  font-weight: 500;
+  color: #111827;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.profile-cat-name:hover {
+  color: #4f46e5;
+}
+
+.profile-cat-manage {
+  font-size: 13px;
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.profile-cat-manage:hover {
+  text-decoration: underline;
+}

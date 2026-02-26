@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://46.225.236.99/api/v1',
+  baseURL: 'https://mapedia.org/api/v1',
 })
 
 api.interceptors.response.use(
@@ -22,7 +22,7 @@ api.interceptors.response.use(
         return Promise.reject(error)
       }
 
-      return axios.post('http://46.225.236.99/api/v1/auth/refresh/', {
+      return axios.post('https://mapedia.org/api/v1/auth/refresh/', {
         refresh: refreshToken
       }).then(function(res) {
         const newAccess = res.data.access
