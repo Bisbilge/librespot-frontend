@@ -372,3 +372,55 @@
     grid-template-columns: 1fr;
   }
 }
+
+.profile-danger-zone {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e53e3e33;
+}
+
+.profile-delete-btn {
+  background: none;
+  border: 1px solid #e53e3e;
+  color: #e53e3e;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 14px;
+}
+
+.profile-delete-btn:hover {
+  background: #e53e3e;
+  color: white;
+}
+
+.profile-delete-confirm {
+  text-align: center;
+}
+
+.profile-delete-confirm p {
+  color: #e53e3e;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.profile-delete-confirm-btn {
+  background: #e53e3e;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.profile-delete-cancel-btn {
+  background: none;
+  border: 1px solid #ccc;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+}

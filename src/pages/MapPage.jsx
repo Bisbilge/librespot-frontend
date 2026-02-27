@@ -12,8 +12,6 @@ import Navbar from '../components/Navbar'
 import api from '../api/client'
 import 'leaflet/dist/leaflet.css'
 import '../styles/MapPage.css'
-
-// Leaflet icon fix
 import L from 'leaflet'
 import iconUrl from 'leaflet/dist/images/marker-icon.png'
 import iconShadow from 'leaflet/dist/images/marker-shadow.png'
@@ -25,18 +23,14 @@ L.Marker.prototype.options.icon = L.icon({
   popupAnchor: [1, -34],
 })
 
-/* 🔧 Sidebar aç/kapa olduğunda haritayı resize et */
 function MapResizer({ sidebarCollapsed }) {
   const map = useMap()
-
   useEffect(() => {
     const t = setTimeout(() => {
       map.invalidateSize()
-    }, 260) // sidebar CSS transition süresi
-
+    }, 260)
     return () => clearTimeout(t)
   }, [sidebarCollapsed, map])
-
   return null
 }
 
@@ -46,25 +40,27 @@ function MapPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   useEffect(() => {
-    api.get('/venues/?page_size=100').then(res => {
+    api.get('/venues/?page_size=200').then(res => {
       setVenues(res.data.results || [])
       setLoading(false)
     })
   }, [])
 
+  const toggleSidebar = () => setSidebarCollapsed(v => !v)
+
   return (
     <div className="map-page">
       <Navbar />
+      {/*
+        1) map-layout'a "sidebar-open" class'ı ekliyoruz (mobil overlay karartması için)
+      */}
+      <div className={`map-layout${!sidebarCollapsed ? ' sidebar-open' : ''}`}>
 
-      <div className="map-layout">
         {/* SIDEBAR */}
         <aside
-          className={`map-sidebar ${
-            sidebarCollapsed ? 'sidebar-collapsed' : ''
-          }`}
+          className={`map-sidebar${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}
         >
           <h2>Venues ({venues.length})</h2>
-
           {loading ? (
             <p className="sidebar-loading">Loading...</p>
           ) : (
@@ -87,12 +83,11 @@ function MapPage() {
 
         {/* MAP */}
         <div className="map-container">
-          {/* sidebar toggle */}
-          <button
-            className="sidebar-toggle-btn"
-            onClick={() => setSidebarCollapsed(v => !v)}
-          >
-            {sidebarCollapsed ? 'Show list' : 'Hide list'}
+          {/*
+            2) Toggle butonu map-container içinde — sidebar kapılı olsa bile görünür kalır
+          */}
+          <button className="sidebar-toggle-btn" onClick={toggleSidebar}>
+            {sidebarCollapsed ? '☰ Show list' : '✕ Hide list'}
           </button>
 
           <MapContainer
@@ -101,17 +96,12 @@ function MapPage() {
             zoomControl={false}
             style={{ height: '100%', width: '100%' }}
           >
-            {/* resize fix */}
             <MapResizer sidebarCollapsed={sidebarCollapsed} />
-
-            {/* zoom bottom right */}
             <ZoomControl position="bottomright" />
-
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='© <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
             />
-
             {venues
               .filter(v => v.latitude && v.longitude)
               .map(v => (
@@ -130,7 +120,6 @@ function MapPage() {
               ))}
           </MapContainer>
 
-          {/* FILTER FAB örnek */}
           <button className="filter-fab">Filter</button>
         </div>
       </div>

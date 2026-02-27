@@ -1,6 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  ZoomControl,
+  useMap,
+  useMapEvents,
+} from 'react-leaflet'
+import MarkerClusterGroup from 'react-leaflet-markercluster'
 import Navbar from '../components/Navbar'
 import api from '../api/client'
 import 'leaflet/dist/leaflet.css'
@@ -17,121 +26,226 @@ L.Marker.prototype.options.icon = L.icon({
   popupAnchor: [1, -34],
 })
 
+// ─── Viewport Listener ────────────────────────────────────────
+function ViewportListener({ onBoundsChange }) {
+  const map = useMap()
+
+  const notify = useCallback(() => {
+    const b = map.getBounds()
+    onBoundsChange({
+      minLat: b.getSouth(),
+      maxLat: b.getNorth(),
+      minLng: b.getWest(),
+      maxLng: b.getEast(),
+    })
+  }, [map, onBoundsChange])
+
+  // Harita hazır olunca ilk bbox'ı al
+  useEffect(() => {
+    map.whenReady(notify)
+  }, [map, notify])
+
+  useMapEvents({
+    moveend: notify,
+    zoomend: notify,
+  })
+
+  return null
+}
+
+// ─── Ana Bileşen ──────────────────────────────────────────────
 function CategoryMapPage() {
   const { slug } = useParams()
   const [venues, setVenues] = useState([])
-  const [filteredVenues, setFilteredVenues] = useState([])
   const [category, setCategory] = useState(null)
   const [fieldDefs, setFieldDefs] = useState([])
   const [filters, setFilters] = useState({})
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [filterOpen, setFilterOpen] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [venueCount, setVenueCount] = useState(null)
 
+  // İstek yönetimi ve Cache
+  const latestReqId = useRef(0)
+  const cache = useRef({})
+  const lastBoundsRef = useRef(null)
+  const filtersRef = useRef(filters)
+  const debounceTimer = useRef(null)
+  const isFirstLoad = useRef(true)
+
+  // filtersRef'i güncel tut
+  useEffect(() => { filtersRef.current = filters }, [filters])
+
+  // Kategori meta verisi — bir kez çek
   useEffect(() => {
     api.get(`/categories/${slug}/`).then(res => {
       setCategory(res.data)
       setFieldDefs(res.data.field_definitions || [])
     })
-    api.get(`/venues/?category=${slug}&page_size=500`).then(res => {
-      const data = res.data.results || []
-      setVenues(data)
-      setFilteredVenues(data)
-      setLoading(false)
-    })
+    api.get(`/venues/?category=${slug}&count_only=1`)
+      .then(res => setVenueCount(res.data?.count ?? null))
+      .catch(() => {})
   }, [slug])
 
-  useEffect(() => {
-    const activeFilters = Object.entries(filters).filter(([_, v]) => v !== '' && v !== null)
-    if (activeFilters.length === 0) {
-      setFilteredVenues(venues)
+  // Sadece görünen alandaki verileri çek (isFilterChange parametresi eklendi)
+  const fetchViewport = useCallback(async (bounds, activeFilters, isFilterChange = false) => {
+    if (!bounds) return
+
+    // Cache oranını artırmak için koordinatları yuvarlıyoruz (~110m hassasiyet)
+    const roundCoord = (val) => Number(parseFloat(val).toFixed(3))
+    const minLng = roundCoord(bounds.minLng)
+    const minLat = roundCoord(bounds.minLat)
+    const maxLng = roundCoord(bounds.maxLng)
+    const maxLat = roundCoord(bounds.maxLat)
+
+    const params = new URLSearchParams({
+      category: slug,
+      bbox: `${minLng},${minLat},${maxLng},${maxLat}`,
+    })
+
+    Object.entries(activeFilters).forEach(([k, v]) => {
+      if (v !== '' && v !== null) params.append(`field__${k}`, v)
+    })
+
+    const cacheKey = params.toString()
+    let dataToProcess = null
+
+    // Cache kontrolü
+    if (cache.current[cacheKey]) {
+      dataToProcess = cache.current[cacheKey]
+    }
+
+    // Cache'de yoksa API'den çek
+    if (!dataToProcess) {
+      const reqId = ++latestReqId.current
+      setLoading(true)
+
+      try {
+        const res = await api.get(`/venues/?${cacheKey}`)
+        if (reqId !== latestReqId.current) return 
+        
+        dataToProcess = Array.isArray(res.data) ? res.data : (res.data.results || [])
+        cache.current[cacheKey] = dataToProcess
+      } catch (err) {
+        if (reqId === latestReqId.current) console.error('Venue fetch hatası:', err)
+        return
+      } finally {
+        if (reqId === latestReqId.current) setLoading(false)
+      }
+    }
+
+    // Veriyi State'e yazarken Tekilleştirme (Deduplication) yapıyoruz
+    if (dataToProcess) {
+      setVenues(prev => {
+        // Eğer filtre değiştiyse eski haritayı sil, sadece yeni filtrelenmiş veriyi göster
+        if (isFilterChange) return dataToProcess
+
+        // Sadece kaydırma yapıldıysa, mevcut pinleri silme; sadece YENİ olanları ekle
+        const existingIds = new Set(prev.map(v => v.id))
+        const newItems = dataToProcess.filter(v => !existingIds.has(v.id))
+
+        // Eklenecek yeni pin yoksa state referansını hiç bozma (Titremeyi engelleyen ana nokta)
+        if (newItems.length === 0) return prev
+
+        return [...prev, ...newItems]
+      })
+    }
+  }, [slug])
+
+  // Harita hareket edince: ilk yüklemede anında, sonrasında 500ms debounce
+  const handleBoundsChange = useCallback((bounds) => {
+    lastBoundsRef.current = bounds
+
+    if (isFirstLoad.current) {
+      isFirstLoad.current = false
+      fetchViewport(bounds, filtersRef.current, false)
       return
     }
-    const result = venues.filter(venue => {
-      return activeFilters.every(([fieldName, filterValue]) => {
-        const fieldValue = venue.field_values?.find(fv => fv.field_label === fieldName)
-        if (!fieldValue) return false
-        return fieldValue.value.toLowerCase().includes(String(filterValue).toLowerCase())
-      })
-    })
-    setFilteredVenues(result)
-  }, [filters, venues])
 
-  const handleFilter = (fieldName, value) => {
-    setFilters(prev => ({ ...prev, [fieldName]: value }))
-  }
+    clearTimeout(debounceTimer.current)
+    debounceTimer.current = setTimeout(() => {
+      fetchViewport(bounds, filtersRef.current, false)
+    }, 500)
+  }, [fetchViewport])
 
+  // Filtre değişince cache'i temizle, isFilterChange = true olarak yeniden çek
+  useEffect(() => {
+    cache.current = {}
+    if (lastBoundsRef.current) {
+      fetchViewport(lastBoundsRef.current, filters, true)
+    }
+  }, [filters, fetchViewport])
+
+  const handleFilter = (name, value) => setFilters(p => ({ ...p, [name]: value }))
   const clearFilters = () => setFilters({})
-
   const activeFilterCount = Object.values(filters).filter(v => v !== '' && v !== null).length
+
+  // MARKER'LARI MEMOIZE EDİYORUZ (Gereksiz render'ları ve titremeyi önler)
+  const markerElements = useMemo(() => {
+    return venues
+      .filter(v => v.latitude && v.longitude)
+      .map(venue => (
+        <Marker
+          key={venue.id}
+          position={[parseFloat(venue.latitude), parseFloat(venue.longitude)]}
+        >
+          <Popup>
+            <strong>{venue.name}</strong><br />
+            {venue.city}<br />
+            <Link to={`/venue/${slug}/${venue.slug}`}>View details →</Link>
+          </Popup>
+        </Marker>
+      ))
+  }, [venues, slug])
 
   return (
     <div className="map-page">
       <Navbar />
+
       <div className="map-layout">
-        <aside className={`map-sidebar${sidebarOpen ? '' : ' sidebar-collapsed'}`}>
-          <h2>{category ? category.name : '...'}</h2>
-          <p className="sidebar-count">{filteredVenues.length} / {venues.length} venues</p>
-          {loading ? (
-            <p className="sidebar-loading">Loading...</p>
-          ) : (
-            <ul className="venue-list">
-              {filteredVenues.map(venue => (
-                <li key={venue.id}>
-                  <Link to={`/venue/${venue.id}`} className="venue-list-item">
-                    <span className="venue-name">{venue.name}</span>
-                    <span className="venue-meta">
-                      {venue.city}{venue.city && venue.country ? ', ' : ''}{venue.country}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </aside>
-
         <div className="map-container">
-          <button
-            className="sidebar-toggle-btn"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          >
-            {sidebarOpen ? '◀ Hide List' : '▶ Show List'}
-          </button>
-
           <MapContainer
             center={[39.9, 32.8]}
-            zoom={6}
+            zoom={12}
+            zoomControl={false}
             style={{ height: '100%', width: '100%' }}
           >
+            <ZoomControl position="topright" />
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='© <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
             />
-            {filteredVenues
-              .filter(v => v.latitude && v.longitude)
-              .map(venue => (
-                <Marker
-                  key={venue.id}
-                  position={[parseFloat(venue.latitude), parseFloat(venue.longitude)]}
-                >
-                  <Popup>
-                    <strong>{venue.name}</strong><br />
-                    {venue.city}<br />
-                    <Link to={`/venue/${venue.id}`}>View details →</Link>
-                  </Popup>
-                </Marker>
-              ))}
+
+            <ViewportListener onBoundsChange={handleBoundsChange} />
+
+            <MarkerClusterGroup>
+              {markerElements}
+            </MarkerClusterGroup>
           </MapContainer>
 
+          {/* Filtre butonu */}
           <button
-            className={`filter-fab ${activeFilterCount > 0 ? 'filter-fab-active' : ''}`}
+            className={`filter-fab${activeFilterCount > 0 ? ' filter-fab-active' : ''}`}
             onClick={() => setFilterOpen(true)}
           >
-            ⚙ Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+            ⚙ Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
           </button>
+
+          {/* Durum çubuğu */}
+          <div className="map-status-bar">
+            {loading
+              ? <span className="map-status-loading">⟳ Yükleniyor…</span>
+              : (
+                <span className="map-status-count">
+                  {venues.length} venue görünüyor
+                  {venueCount !== null && ` · ${venueCount} toplam`}
+                </span>
+              )
+            }
+          </div>
         </div>
       </div>
 
+      {/* Filtre Drawer */}
       {filterOpen && (
         <div className="filter-overlay" onClick={() => setFilterOpen(false)}>
           <div className="filter-drawer" onClick={e => e.stopPropagation()}>
@@ -143,14 +257,12 @@ function CategoryMapPage() {
               {fieldDefs.filter(f => f.is_public).map(field => (
                 <div key={field.id} className="filter-item">
                   <label className="filter-label">{field.label}</label>
-                  {field.help_text && (
-                    <p className="filter-help">{field.help_text}</p>
-                  )}
+                  {field.help_text && <p className="filter-help">{field.help_text}</p>}
                   {field.field_type === 'boolean' ? (
                     <select
-                      onChange={e => handleFilter(field.label, e.target.value)}
-                      value={filters[field.label] || ''}
                       className="filter-select"
+                      value={filters[field.label] || ''}
+                      onChange={e => handleFilter(field.label, e.target.value)}
                     >
                       <option value="">Any</option>
                       <option value="true">Yes</option>
@@ -159,10 +271,10 @@ function CategoryMapPage() {
                   ) : (
                     <input
                       type="text"
-                      placeholder={field.help_text || `Search ${field.label}...`}
+                      className="filter-input"
+                      placeholder={field.help_text || `Search ${field.label}…`}
                       value={filters[field.label] || ''}
                       onChange={e => handleFilter(field.label, e.target.value)}
-                      className="filter-input"
                     />
                   )}
                 </div>

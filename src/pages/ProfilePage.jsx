@@ -21,24 +21,26 @@ function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
   const [activeTab, setActiveTab] = useState('contributions')
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
-  useEffect(function () {
+  useEffect(() => {
     if (!token) {
       navigate('/login')
       return
     }
     api.get('/auth/profile/', {
-      headers: { Authorization: 'Bearer ' + token }
-    }).then(function (res) {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then((res) => {
       setProfile(res.data)
       setBio(res.data.bio || '')
       setLoading(false)
-    }).catch(function () {
+    }).catch(() => {
       navigate('/login')
     })
-  }, [])
+  }, [token, navigate])
 
-  function handleSave() {
+  const handleSave = () => {
     setSaving(true)
     setSuccess(false)
     const formData = new FormData()
@@ -48,18 +50,29 @@ function ProfilePage() {
     }
     api.patch('/auth/profile/', formData, {
       headers: {
-        Authorization: 'Bearer ' + token,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data',
       }
-    }).then(function () {
+    }).then(() => {
       setSuccess(true)
       setEditing(false)
       setSaving(false)
-      setProfile(function (prev) {
-        return Object.assign({}, prev, { bio: bio })
-      })
-    }).catch(function () {
+      setProfile(prev => ({ ...prev, bio: bio }))
+    }).catch(() => {
       setSaving(false)
+    })
+  }
+
+  const handleDeleteAccount = () => {
+    setDeleting(true)
+    api.delete('/auth/delete-account/', {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(() => {
+      localStorage.removeItem('access')
+      localStorage.removeItem('refresh')
+      navigate('/')
+    }).catch(() => {
+      setDeleting(false)
     })
   }
 
@@ -107,7 +120,9 @@ function ProfilePage() {
                 <span className="profile-stat-label">Venues</span>
               </div>
               <div className="profile-stat">
-                <span className="profile-stat-number">{(profile.owned_categories?.length || 0) + (profile.moderated_categories?.length || 0)}</span>
+                <span className="profile-stat-number">
+                  {(profile.owned_categories?.length || 0) + (profile.moderated_categories?.length || 0)}
+                </span>
                 <span className="profile-stat-label">Categories</span>
               </div>
             </div>
@@ -123,6 +138,11 @@ function ProfilePage() {
                     <td>Email</td>
                     <td>{profile.email}</td>
                   </tr>
+                  {/* User ID buraya eklendi */}
+                  <tr>
+                    <td>User ID</td>
+                    <td>{profile.id}</td>
+                  </tr>
                   <tr>
                     <td>Joined</td>
                     <td>{new Date(profile.date_joined).toLocaleDateString()}</td>
@@ -137,7 +157,7 @@ function ProfilePage() {
 
             <button
               className="profile-edit-btn"
-              onClick={function () { setEditing(!editing) }}
+              onClick={() => setEditing(!editing)}
             >
               {editing ? 'Cancel' : 'Edit Profile'}
             </button>
@@ -148,7 +168,7 @@ function ProfilePage() {
                   <label>Bio</label>
                   <textarea
                     value={bio}
-                    onChange={function (e) { setBio(e.target.value) }}
+                    onChange={(e) => setBio(e.target.value)}
                     className="report-textarea"
                     placeholder="Tell us about yourself..."
                   />
@@ -158,7 +178,7 @@ function ProfilePage() {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={function (e) { setAvatar(e.target.files[0]) }}
+                    onChange={(e) => setAvatar(e.target.files[0])}
                   />
                 </div>
                 <button className="auth-btn" onClick={handleSave} disabled={saving}>
@@ -167,6 +187,35 @@ function ProfilePage() {
                 {success && <p className="profile-success">Profile updated.</p>}
               </div>
             )}
+
+            <div className="profile-danger-zone">
+              {!showDeleteConfirm ? (
+                <button
+                  className="profile-delete-btn"
+                  onClick={() => setShowDeleteConfirm(true)}
+                >
+                  Delete Account
+                </button>
+              ) : (
+                <div className="profile-delete-confirm">
+                  <p>Are you sure? This cannot be undone.</p>
+                  <button
+                    className="profile-delete-confirm-btn"
+                    onClick={handleDeleteAccount}
+                    disabled={deleting}
+                  >
+                    {deleting ? 'Deleting...' : 'Yes, delete my account'}
+                  </button>
+                  <button
+                    className="profile-delete-cancel-btn"
+                    onClick={() => setShowDeleteConfirm(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+
           </aside>
 
           {/* SAĞ İÇERİK */}
@@ -174,17 +223,15 @@ function ProfilePage() {
 
             {/* Tabs */}
             <div className="profile-tabs">
-              {TABS.map(function (tab) {
-                return (
-                  <button
-                    key={tab.key}
-                    className={'profile-tab' + (activeTab === tab.key ? ' profile-tab-active' : '')}
-                    onClick={function () { setActiveTab(tab.key) }}
-                  >
-                    {tab.label}
-                  </button>
-                )
-              })}
+              {TABS.map((tab) => (
+                <button
+                  key={tab.key}
+                  className={'profile-tab' + (activeTab === tab.key ? ' profile-tab-active' : '')}
+                  onClick={() => setActiveTab(tab.key)}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
 
             {/* Contributions Tab */}
@@ -203,28 +250,28 @@ function ProfilePage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {profile.contributions.map(function (c) {
-                        return (
-                          <tr key={c.id}>
-                            <td>
-                              {c.venue_id ? (
-                                <Link to={'/venue/' + c.venue_id}>{c.name}</Link>
-                              ) : (
-                                <span>{c.name}</span>
-                              )}
-                            </td>
-                            <td className="contrib-type">{c.type.replace('_', ' ')}</td>
-                            <td>
-                              <span className={'contrib-status contrib-status-' + c.status}>
-                                {c.status}
-                              </span>
-                            </td>
-                            <td className="contrib-date">
-                              {new Date(c.created_at).toLocaleDateString()}
-                            </td>
-                          </tr>
-                        )
-                      })}
+                      {profile.contributions.map((c) => (
+                        <tr key={c.id}>
+                          <td>
+                            {c.venue_slug && c.category_slug ? (
+                              <Link to={`/venue/${c.category_slug}/${c.venue_slug}`}>
+                                {c.name}
+                              </Link>
+                            ) : (
+                              <span>{c.name}</span>
+                            )}
+                          </td>
+                          <td className="contrib-type">{c.type.replace('_', ' ')}</td>
+                          <td>
+                            <span className={'contrib-status contrib-status-' + c.status}>
+                              {c.status}
+                            </span>
+                          </td>
+                          <td className="contrib-date">
+                            {new Date(c.created_at).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 )}
@@ -238,17 +285,19 @@ function ProfilePage() {
                   <p className="profile-empty">No approved venues yet.</p>
                 ) : (
                   <div className="profile-venues-grid">
-                    {profile.my_venues.map(function (v) {
-                      return (
-                        <Link key={v.id} to={'/venue/' + v.id} className="profile-venue-card">
-                          <span className="profile-venue-name">{v.name}</span>
-                          <span className="profile-venue-meta">
-                            {[v.city, v.country].filter(Boolean).join(', ')}
-                          </span>
-                          <span className="profile-venue-category">{v.category_name}</span>
-                        </Link>
-                      )
-                    })}
+                    {profile.my_venues.map((v) => (
+                      <Link
+                        key={v.id}
+                        to={`/venue/${v.category_slug}/${v.slug}`}
+                        className="profile-venue-card"
+                      >
+                        <span className="profile-venue-name">{v.name}</span>
+                        <span className="profile-venue-meta">
+                          {[v.city, v.country].filter(Boolean).join(', ')}
+                        </span>
+                        <span className="profile-venue-category">{v.category_name}</span>
+                      </Link>
+                    ))}
                   </div>
                 )}
               </div>
@@ -261,18 +310,16 @@ function ProfilePage() {
                   <div className="profile-cat-section">
                     <h3 className="profile-cat-title">Categories I Own</h3>
                     <div className="profile-cat-list">
-                      {profile.owned_categories.map(function (cat) {
-                        return (
-                          <div key={cat.id} className="profile-cat-card">
-                            <Link to={'/category/' + cat.slug} className="profile-cat-name">
-                              {cat.name}
-                            </Link>
-                            <Link to={'/moderation/' + cat.slug} className="profile-cat-manage">
-                              Manage →
-                            </Link>
-                          </div>
-                        )
-                      })}
+                      {profile.owned_categories.map((cat) => (
+                        <div key={cat.id} className="profile-cat-card">
+                          <Link to={'/category/' + cat.slug} className="profile-cat-name">
+                            {cat.name}
+                          </Link>
+                          <Link to={'/moderation/' + cat.slug} className="profile-cat-manage">
+                            Manage →
+                          </Link>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -281,18 +328,16 @@ function ProfilePage() {
                   <div className="profile-cat-section">
                     <h3 className="profile-cat-title">Categories I Moderate</h3>
                     <div className="profile-cat-list">
-                      {profile.moderated_categories.map(function (cat) {
-                        return (
-                          <div key={cat.id} className="profile-cat-card">
-                            <Link to={'/category/' + cat.slug} className="profile-cat-name">
-                              {cat.name}
-                            </Link>
-                            <Link to={'/moderation/' + cat.slug} className="profile-cat-manage">
-                              Moderate →
-                            </Link>
-                          </div>
-                        )
-                      })}
+                      {profile.moderated_categories.map((cat) => (
+                        <div key={cat.id} className="profile-cat-card">
+                          <Link to={'/category/' + cat.slug} className="profile-cat-name">
+                            {cat.name}
+                          </Link>
+                          <Link to={'/moderation/' + cat.slug} className="profile-cat-manage">
+                            Moderate →
+                          </Link>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}

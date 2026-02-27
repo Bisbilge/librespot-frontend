@@ -222,7 +222,7 @@
 .mod-btn-reject:hover { background: #fff3f3; }
 .mod-btn-reject:disabled { opacity: 0.6; cursor: not-allowed; }
 
-/* Category list page */
+/* ── Category list page ── */
 .mod-categories-main {
   max-width: 800px;
   margin: 48px auto;
@@ -294,11 +294,33 @@
 .mod-manage-mods {
   font-size: 12px;
   color: var(--link);
-  margin-top: 4px;
   text-decoration: underline;
 }
 
-/* Tabs */
+/* Kategori kart alt aksiyonlar */
+.mod-category-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.mod-delete-category-btn {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: #dc2626;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.mod-delete-category-btn:hover {
+  color: #991b1b;
+}
+
+/* ── Tabs ── */
 .mod-tabs {
   display: flex;
   border-bottom: 2px solid #e5e7eb;
@@ -327,7 +349,7 @@
   border-bottom-color: #4f46e5;
 }
 
-/* Field Manager */
+/* ── Field Manager ── */
 .field-manager { padding: 8px 0; }
 
 .field-manager-header {
@@ -432,7 +454,7 @@
 
 .field-btn-delete:hover { background: #fecaca; }
 
-/* Modal */
+/* ── Modal ── */
 .field-modal-overlay {
   position: fixed;
   inset: 0;
@@ -595,7 +617,7 @@
 .field-btn-save:hover { background: #4338ca; }
 .field-btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
 
-/* Venue Manager */
+/* ── Venue Manager ── */
 .venue-manager { padding: 8px 0; }
 
 .venue-count {
@@ -626,7 +648,31 @@
 
 .venue-manager-link:hover { color: #4f46e5; }
 
-/* Mobile */
+/* ── Category Settings ── */
+.cat-settings { padding: 8px 0; }
+
+.cat-settings-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.cat-settings-full { grid-column: 1 / -1; }
+
+.cat-settings-success {
+  background: #dcfce7;
+  color: #166534;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .cat-settings-form { grid-template-columns: 1fr; }
+  .cat-settings-full { grid-column: 1; }
+}
 @media (max-width: 768px) {
   .mod-main {
     height: auto;
@@ -655,19 +701,74 @@
     grid-template-columns: 1fr;
   }
 
-  .field-form-full {
-    grid-column: 1;
-  }
+  .field-form-full { grid-column: 1; }
+  .field-form-checkboxes { grid-column: 1; }
 
-  .field-form-checkboxes {
-    grid-column: 1;
-  }
+  .venue-search { width: 150px; }
 
-  .venue-search {
-    width: 150px;
-  }
+  .mod-categories-title { font-size: 24px; }
 
-  .mod-categories-title {
-    font-size: 24px;
+  .mod-category-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
   }
+}
+
+/* ModerationPage.css — pagination kısmını ekle */
+
+.venue-pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 0 8px;
+  flex-wrap: wrap;
+}
+
+.venue-page-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: all 0.15s;
+}
+
+.venue-page-btn:hover:not(:disabled) {
+  background: #f0f0f0;
+  border-color: #bbb;
+}
+
+.venue-page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.venue-page-btn-active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+  font-weight: 600;
+}
+
+.venue-page-btn-active:hover {
+  background: #1d4ed8 !important;
+}
+
+.venue-page-dots {
+  padding: 0 4px;
+  color: #999;
+  font-size: 14px;
+  line-height: 36px;
+}
+
+.venue-page-info {
+  margin-left: 8px;
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
 }

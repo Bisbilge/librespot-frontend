@@ -223,39 +223,82 @@ function VenueManager({ categorySlug, token }) {
   const [venues, setVenues] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
 
-  useEffect(() => { loadVenues() }, [categorySlug])
+  const PAGE_SIZE = 20
 
-  const loadVenues = () => {
+  useEffect(() => {
+    setPage(1)
+    loadVenues(1, search)
+  }, [categorySlug, search])
+
+  useEffect(() => {
+    loadVenues(page, search)
+  }, [page])
+
+  const loadVenues = (p, q) => {
     setLoading(true)
-    api.get(`/venues/?category=${categorySlug}`, {
+    const params = new URLSearchParams({
+      category: categorySlug,
+      page: p,
+      page_size: PAGE_SIZE,
+    })
+    if (q?.trim()) params.append('search', q.trim())
+
+    api.get(`/venues/?${params}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(res => setVenues(res.data.results || res.data))
+      .then(res => {
+        if (res.data.results !== undefined) {
+          setVenues(res.data.results)
+          setTotalCount(res.data.count)
+        } else {
+          setVenues(res.data)
+          setTotalCount(res.data.length)
+        }
+      })
       .catch(err => console.error('Venues yüklenemedi:', err))
       .finally(() => setLoading(false))
   }
 
   const handleDelete = (venue) => {
     if (!window.confirm(`"${venue.name}" venue'sunu silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`)) return
-    api.delete(`/venues/${venue.id}/delete/`, {
+    api.delete(`/venues/${venue.slug}/delete/`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(() => setVenues(prev => prev.filter(v => v.id !== venue.id)))
+      .then(() => loadVenues(page, search))
       .catch(err => console.error('Silinemedi:', err))
   }
 
-  const filtered = venues.filter(v =>
-    v.name.toLowerCase().includes(search.toLowerCase()) ||
-    (v.city || '').toLowerCase().includes(search.toLowerCase())
-  )
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE)
 
-  if (loading) return <p className="mod-empty">Loading venues...</p>
+  const getPageNumbers = () => {
+    const delta = 2
+    const range = []
+    for (let i = Math.max(1, page - delta); i <= Math.min(totalPages, page + delta); i++) {
+      range.push(i)
+    }
+    if (range[0] > 1) {
+      range.unshift('...')
+      range.unshift(1)
+    }
+    if (range[range.length - 1] < totalPages) {
+      range.push('...')
+      range.push(totalPages)
+    }
+    return range
+  }
 
   return (
     <div className="venue-manager">
       <div className="field-manager-header">
-        <h3>Venues <span className="venue-count">({venues.length})</span></h3>
+        <h3>
+          Venues{' '}
+          <span className="venue-count">
+            ({totalCount} total{search ? ' · filtered' : ''})
+          </span>
+        </h3>
         <input
           className="venue-search"
           type="text"
@@ -265,40 +308,173 @@ function VenueManager({ categorySlug, token }) {
         />
       </div>
 
-      {filtered.length === 0 ? (
+      {loading ? (
+        <p className="mod-empty">Loading venues...</p>
+      ) : venues.length === 0 ? (
         <p className="mod-empty">{search ? 'No results.' : 'No venues in this category yet.'}</p>
       ) : (
-        <table className="field-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>City</th>
-              <th>Country</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map(v => (
-              <tr key={v.id}>
-                <td>
-                  <Link to={`/venue/${v.id}`} className="venue-manager-link">{v.name}</Link>
-                </td>
-                <td>{v.city || '—'}</td>
-                <td>{v.country || '—'}</td>
-                <td className="field-actions">
-                  <Link to={`/venue/${v.id}/edit`} className="field-btn-edit"
-                    style={{ textDecoration: 'none', display: 'inline-block' }}>
-                    Edit
-                  </Link>
-                  <button className="field-btn-delete" onClick={() => handleDelete(v)}>
-                    Delete
-                  </button>
-                </td>
+        <>
+          <table className="field-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>City</th>
+                <th>Country</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {venues.map(v => (
+                <tr key={v.id}>
+                  <td>
+                    <Link to={`/venue/${categorySlug}/${v.slug}`} className="venue-manager-link">
+                      {v.name}
+                    </Link>
+                  </td>
+                  <td>{v.city || '—'}</td>
+                  <td>{v.country || '—'}</td>
+                  <td className="field-actions">
+                    <Link
+                      to={`/venue/${categorySlug}/${v.slug}/edit`}
+                      className="field-btn-edit"
+                      style={{ textDecoration: 'none', display: 'inline-block' }}
+                    >
+                      Edit
+                    </Link>
+                    <button className="field-btn-delete" onClick={() => handleDelete(v)}>
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {totalPages > 1 && (
+            <div className="venue-pagination">
+              <button
+                className="venue-page-btn"
+                onClick={() => setPage(p => p - 1)}
+                disabled={page === 1}
+              >
+                ←
+              </button>
+
+              {getPageNumbers().map((num, i) =>
+                num === '...' ? (
+                  <span key={`dots-${i}`} className="venue-page-dots">…</span>
+                ) : (
+                  <button
+                    key={num}
+                    className={`venue-page-btn ${page === num ? 'venue-page-btn-active' : ''}`}
+                    onClick={() => setPage(num)}
+                  >
+                    {num}
+                  </button>
+                )
+              )}
+
+              <button
+                className="venue-page-btn"
+                onClick={() => setPage(p => p + 1)}
+                disabled={page === totalPages}
+              >
+                →
+              </button>
+
+              <span className="venue-page-info">
+                {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, totalCount)} / {totalCount}
+              </span>
+            </div>
+          )}
+        </>
       )}
+    </div>
+  )
+}
+
+// ─── CATEGORY SETTINGS ───────────────────────────────────────
+function CategorySettings({ categorySlug, token }) {
+  const [form, setForm] = useState({ name: '', description: '', icon: '' })
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    setLoading(true)
+    api.get(`/categories/${categorySlug}/`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => {
+        setForm({
+          name: res.data.name || '',
+          description: res.data.description || '',
+          icon: res.data.icon || '',
+        })
+      })
+      .catch(() => setError('Could not load category.'))
+      .finally(() => setLoading(false))
+  }, [categorySlug])
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm(prev => ({ ...prev, [name]: value }))
+    setSuccess(false)
+  }
+
+  const handleSave = () => {
+    setSaving(true)
+    setError('')
+    setSuccess(false)
+    api.patch(`/categories/${categorySlug}/update/`, form, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(() => setSuccess(true))
+      .catch(err => {
+        const data = err.response?.data
+        setError(data ? Object.values(data).flat().join(' ') : 'Something went wrong.')
+      })
+      .finally(() => setSaving(false))
+  }
+
+  if (loading) return <p className="mod-empty">Loading...</p>
+
+  return (
+    <div className="cat-settings">
+      <div className="field-manager-header">
+        <h3>Category Settings</h3>
+      </div>
+
+      {error && <p className="field-error">{error}</p>}
+      {success && <p className="cat-settings-success">Saved successfully.</p>}
+
+      <div className="cat-settings-form">
+        <div className="field-form-group">
+          <label>Name</label>
+          <input name="name" value={form.name} onChange={handleChange} />
+        </div>
+        <div className="field-form-group">
+          <label>Icon</label>
+          <input name="icon" value={form.icon} onChange={handleChange} placeholder="e.g. 🍺 or fa-beer" />
+        </div>
+        <div className="field-form-group cat-settings-full">
+          <label>Description</label>
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            rows={4}
+            className="mod-reject-note"
+          />
+        </div>
+      </div>
+
+      <div className="field-modal-actions" style={{ justifyContent: 'flex-start', marginTop: 16 }}>
+        <button className="field-btn-save" onClick={handleSave} disabled={saving}>
+          {saving ? 'Saving...' : 'Save Changes'}
+        </button>
+      </div>
     </div>
   )
 }
@@ -343,6 +519,15 @@ function ModerationPage() {
       .then(res => setContributions(res.data))
       .catch(err => console.error('Başvurular yüklenemedi:', err))
       .finally(() => setLoading(false))
+  }
+
+  const handleDeleteCategory = (cat) => {
+    if (!window.confirm(`"${cat.name}" kategorisini silmek istediğinize emin misiniz? Tüm venue ve field'lar da silinecek. Bu işlem geri alınamaz.`)) return
+    api.delete(`/categories/${cat.slug}/delete/`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(() => setCategories(prev => prev.filter(c => c.slug !== cat.slug)))
+      .catch(err => alert(err.response?.data?.detail || 'Could not delete category.'))
   }
 
   const handleApprove = (id) => {
@@ -422,11 +607,21 @@ function ModerationPage() {
                       {cat.pending_count} pending
                     </span>
                   </Link>
-                  {cat.is_owner && (
-                    <Link to={`/moderation/${cat.slug}/moderators`} className="mod-manage-mods">
-                      Manage Moderators
-                    </Link>
-                  )}
+                  <div className="mod-category-actions">
+                    {cat.is_owner && (
+                      <Link to={`/moderation/${cat.slug}/moderators`} className="mod-manage-mods">
+                        Manage Moderators
+                      </Link>
+                    )}
+                    {cat.is_owner && (
+                      <button
+                        className="mod-delete-category-btn"
+                        onClick={() => handleDeleteCategory(cat)}
+                      >
+                        Delete Category
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -492,6 +687,12 @@ function ModerationPage() {
               >
                 Manage Fields
               </button>
+              <button
+                className={`mod-tab ${activeTab === 'settings' ? 'mod-tab-active' : ''}`}
+                onClick={() => setActiveTab('settings')}
+              >
+                Category Settings
+              </button>
             </div>
 
             {activeTab === 'contributions' && (
@@ -550,6 +751,10 @@ function ModerationPage() {
 
             {activeTab === 'fields' && (
               <FieldManager categorySlug={categorySlug} token={token} />
+            )}
+
+            {activeTab === 'settings' && (
+              <CategorySettings categorySlug={categorySlug} token={token} />
             )}
           </section>
         </div>

@@ -15,14 +15,21 @@ function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
+    
     api.post('/auth/login/', { username, password })
       .then(function(res) {
         localStorage.setItem('access', res.data.access)
         localStorage.setItem('refresh', res.data.refresh)
         navigate('/')
       })
-      .catch(function() {
-        setError('Invalid username or password.')
+      .catch(function(err) {
+        // Backend'den gelen spesifik bir 'detail' mesajı varsa onu göster
+        if (err.response && err.response.data && err.response.data.detail) {
+          setError(err.response.data.detail)
+        } else {
+          // Yoksa varsayılan hata mesajını göster
+          setError('Invalid username or password.')
+        }
         setLoading(false)
       })
   }

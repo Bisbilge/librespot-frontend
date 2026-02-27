@@ -1,0 +1,218 @@
+.catdetail-main {
+  max-width: 680px;
+  margin: 48px auto;
+  padding: 0 16px;
+}
+
+.catdetail-loading,
+.catdetail-error {
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+.catdetail-box {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* HEADER */
+.catdetail-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 24px;
+}
+
+.catdetail-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.catdetail-icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.catdetail-title {
+  font-family: 'Linux Libertine', serif;
+  font-size: 36px;
+  font-weight: normal;
+  margin: 0;
+}
+
+.catdetail-desc {
+  font-size: 15px;
+  color: var(--text-light);
+  margin: 0 0 20px 0;
+  line-height: 1.6;
+}
+
+.catdetail-btn-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.catdetail-map-btn {
+  display: inline-block;
+  padding: 10px 24px;
+  background: var(--link);
+  color: white;
+  border: none;
+  font-size: 15px;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.catdetail-map-btn:hover {
+  opacity: 0.88;
+}
+
+.catdetail-contribute-btn {
+  display: inline-block;
+  padding: 10px 24px;
+  background: white;
+  color: var(--link);
+  border: 1px solid var(--link);
+  font-size: 15px;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.catdetail-contribute-btn:hover {
+  background: var(--accent);
+}
+
+/* STATS */
+.catdetail-meta {
+  display: flex;
+  gap: 32px;
+}
+
+.catdetail-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.catdetail-stat-value {
+  font-family: 'Linux Libertine', serif;
+  font-size: 28px;
+  color: var(--text);
+  line-height: 1;
+}
+
+.catdetail-stat-label {
+  font-size: 12px;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* SECTIONS */
+.catdetail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.catdetail-section-title {
+  font-family: 'Linux Libertine', serif;
+  font-size: 20px;
+  font-weight: normal;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* COMMUNITY */
+.catdetail-person-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.catdetail-role {
+  color: var(--text-light);
+  width: 90px;
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+.catdetail-username {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* FIELDS */
+.catdetail-fields {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.catdetail-field-item {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.catdetail-field-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.catdetail-field-type {
+  font-size: 11px;
+  color: var(--text-light);
+  background: var(--accent);
+  border: 1px solid var(--border);
+  padding: 1px 7px;
+}
+
+.catdetail-field-help {
+  font-size: 12px;
+  color: var(--text-light);
+  width: 100%;
+}
+
+/* CONTRIBUTE */
+.catdetail-contribute {
+  padding-top: 8px;
+}
+
+.catdetail-contribute-link {
+  font-size: 14px;
+  color: var(--link);
+  text-decoration: none;
+}
+
+.catdetail-contribute-link:hover {
+  text-decoration: underline;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .catdetail-main {
+    margin: 24px auto;
+  }
+
+  .catdetail-title {
+    font-size: 28px;
+  }
+
+  .catdetail-meta {
+    gap: 20px;
+  }
+}

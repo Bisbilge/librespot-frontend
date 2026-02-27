@@ -33,7 +33,7 @@ function CreateCategoryPage() {
     api.post('/categories/create/', form, {
       headers: { Authorization: 'Bearer ' + localStorage.getItem('access') }
     }).then(function(res) {
-      navigate('/category/' + res.data.slug)
+      navigate('/category/' + res.data.slug + '/fields')
     }).catch(function(err) {
       setError(JSON.stringify(err.response ? err.response.data : 'An error occurred.'))
       setLoading(false)

@@ -40,9 +40,7 @@ function Navbar() {
   }
 
   function handleBlur() {
-    setTimeout(function() {
-      setShowResults(false)
-    }, 150)
+    setTimeout(function() { setShowResults(false) }, 150)
   }
 
   function handleNavClick() {
@@ -102,7 +100,6 @@ function Navbar() {
         </div>
 
         <nav className={`navbar-links${menuOpen ? ' navbar-links-open' : ''}`}>
-          <Link to="/contribute" onClick={handleNavClick}>Contribute</Link>
           {token && (
             <Link to="/create-category" onClick={handleNavClick}>New Category</Link>
           )}

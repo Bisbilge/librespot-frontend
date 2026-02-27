@@ -1,90 +1,119 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import api from '../api/client'
-import '../styles/AuthPage.css'
+import '../styles/ContributePage.css'
 
 function RegisterPage() {
-  const navigate = useNavigate()
-  const [form, setForm] = useState({ username: '', email: '', password: '', password2: '' })
-  const [errors, setErrors] = useState({})
+  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-
-  function handleChange(e) {
-    setForm(function(prev) {
-      return { ...prev, [e.target.name]: e.target.value }
-    })
-  }
+  const [emailSent, setEmailSent] = useState(false)
 
   function handleSubmit(e) {
     e.preventDefault()
+    setError('')
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.')
+      return
+    }
+
     setLoading(true)
-    setErrors({})
-    api.post('/auth/register/', form)
-      .then(function() {
-        navigate('/login')
-      })
-      .catch(function(err) {
-        setErrors(err.response?.data || {})
+    api.post('/auth/register/', { username, email, password, password2: confirmPassword })
+      .then(() => {
+        setEmailSent(true)
         setLoading(false)
       })
+      .catch(err => {
+        const data = err.response?.data
+        setError(data ? Object.values(data).flat().join(' ') : 'Registration failed.')
+        setLoading(false)
+      })
+  }
+
+  if (emailSent) {
+    return (
+      <div>
+        <Navbar />
+        <main className="contribute-main">
+          <div className="contribute-box">
+            <h1 className="contribute-title">Check your email</h1>
+            <p>
+              We sent a verification link to <strong>{email}</strong>.
+              Please click the link to activate your account.
+            </p>
+            <p style={{ fontSize: 13, color: 'var(--text-light)', marginTop: 12 }}>
+              Didn't receive it? Check your spam folder.
+            </p>
+            <div style={{ marginTop: 24 }}>
+              <Link to="/" className="auth-btn">Go to Home</Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    )
   }
 
   return (
     <div>
       <Navbar />
-      <main className="auth-main">
-        <div className="auth-box">
-          <h1 className="auth-title">Create an account</h1>
-          <form onSubmit={handleSubmit} className="auth-form">
+      <main className="contribute-main">
+        <div className="contribute-box">
+          <h1 className="contribute-title">Create an account</h1>
+
+          {error && <div className="auth-error">{error}</div>}
+
+          <form onSubmit={handleSubmit} className="contribute-form">
             <div className="auth-field">
-              <label>Username</label>
+              <label>Username *</label>
               <input
                 type="text"
-                name="username"
-                value={form.username}
-                onChange={handleChange}
+                value={username}
+                onChange={e => setUsername(e.target.value)}
                 required
               />
-              {errors.username && <span className="auth-field-error">{errors.username}</span>}
             </div>
+
             <div className="auth-field">
-              <label>Email</label>
+              <label>Email *</label>
               <input
                 type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
+                value={email}
+                onChange={e => setEmail(e.target.value)}
                 required
               />
-              {errors.email && <span className="auth-field-error">{errors.email}</span>}
             </div>
+
             <div className="auth-field">
-              <label>Password</label>
+              <label>Password *</label>
               <input
                 type="password"
-                name="password"
-                value={form.password}
-                onChange={handleChange}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
                 required
               />
-              {errors.password && <span className="auth-field-error">{errors.password}</span>}
             </div>
+
             <div className="auth-field">
-              <label>Confirm Password</label>
+              <label>Confirm Password *</label>
               <input
                 type="password"
-                name="password2"
-                value={form.password2}
-                onChange={handleChange}
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
                 required
               />
             </div>
+
             <button type="submit" className="auth-btn" disabled={loading}>
-              {loading ? 'Creating account...' : 'Create account'}
+              {loading ? 'Creating account…' : 'Create Account'}
             </button>
           </form>
-          <p className="auth-switch">
+
+          <p style={{ fontSize: 13, marginTop: 16 }}>
             Already have an account? <Link to="/login">Log in</Link>
           </p>
         </div>
