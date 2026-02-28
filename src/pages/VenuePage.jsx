@@ -36,7 +36,6 @@ function VenuePage() {
       const res = await api.get(`/venues/${venueSlug}/?category=${categorySlug}`, { headers })
       setVenue(res.data)
     } catch (err) {
-      // Token geçersizse bir kez tokensız dene
       if (err.response?.status === 401 && !retryWithoutToken) {
         localStorage.removeItem('access')
         localStorage.removeItem('refresh')
@@ -151,11 +150,9 @@ function VenuePage() {
 
             {/* ACTIONS */}
             <div className="venue-actions">
-              {venue.can_edit && (
-                <Link to={`/venue/${categorySlug}/${venueSlug}/edit`} className="btn-edit">
-                  Edit this venue
-                </Link>
-              )}
+              <Link to={`/venue/${categorySlug}/${venueSlug}/edit`} className="btn-edit">
+                Edit
+              </Link>
               <button className="btn-report" onClick={() => setReportOpen(!reportOpen)}>
                 {reportOpen ? 'Cancel' : 'Report an issue'}
               </button>
@@ -221,7 +218,7 @@ function VenuePage() {
                   />
                   <Marker position={[parseFloat(venue.latitude), parseFloat(venue.longitude)]} />
                 </MapContainer>
-                {/* DÜZELTİLDİ: <a> etiketi eklendi */}
+                
                 <a 
                   href={`https://www.openstreetmap.org/?mlat=${venue.latitude}&mlon=${venue.longitude}&zoom=16`}
                   target="_blank"
@@ -229,6 +226,17 @@ function VenuePage() {
                   className="osm-link"
                 >
                   View on OpenStreetMap ↗
+                </a>
+
+                {/* YENİ EKLENEN GOOGLE MAPS LİNKİ */}
+                <a 
+                  href={`https://www.google.com/maps/search/?api=1&query=${venue.latitude},${venue.longitude}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="osm-link"
+                  style={{ borderTop: '1px solid var(--border)' }}
+                >
+                  Open on Google Maps ↗
                 </a>
               </div>
             )}

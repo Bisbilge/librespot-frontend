@@ -17,7 +17,8 @@ function EditVenuePage() {
   const [error, setError] = useState('')
 
   const [form, setForm] = useState({
-    name: '', city: '', country: '', address: '', latitude: '', longitude: '',
+    name: '', city: '', country: '', address: '',
+    latitude: '', longitude: '', map_url: '',
   })
   const [activeFields, setActiveFields] = useState({})
 
@@ -34,6 +35,7 @@ function EditVenuePage() {
         address: v.address || '',
         latitude: v.latitude || '',
         longitude: v.longitude || '',
+        map_url: v.map_url || '',
       })
       const fv = {}
       if (v.field_values) {
@@ -77,8 +79,13 @@ function EditVenuePage() {
     api.post(
       '/contributions/venue/' + venue.id + '/edit/',
       {
-        name: form.name, city: form.city, country: form.country,
-        address: form.address, latitude: form.latitude, longitude: form.longitude,
+        name: form.name,
+        city: form.city,
+        country: form.country,
+        address: form.address,
+        latitude: form.latitude,
+        longitude: form.longitude,
+        map_url: form.map_url,
         field_values: activeFields,
       },
       { headers: { Authorization: 'Bearer ' + token } }
@@ -179,6 +186,16 @@ function EditVenuePage() {
             </div>
 
             <h2>Location</h2>
+            <div className="auth-field">
+              <label>Map URL</label>
+              <input
+                type="url"
+                name="map_url"
+                value={form.map_url}
+                onChange={handleChange}
+                placeholder="https://maps.google.com/..."
+              />
+            </div>
             <div className="form-row">
               <div className="auth-field">
                 <label>Latitude</label>

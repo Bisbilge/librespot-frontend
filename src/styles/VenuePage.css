@@ -300,10 +300,12 @@ a.venue-tag:hover {
   background: var(--nav-bg);
   color: var(--link);
   text-decoration: none;
+  transition: background 0.15s;
 }
 
 .osm-link:hover {
   text-decoration: underline;
+  background: rgba(0, 0, 0, 0.02);
 }
 
 .venue-info-box {

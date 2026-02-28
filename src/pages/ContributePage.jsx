@@ -9,8 +9,7 @@ function ContributePage() {
   const [searchParams] = useSearchParams()
   const preselectedCategory = searchParams.get('category') || ''
 
-  // Kategorinin okunabilir adını bulmak için state
-  const [categoryName, setCategoryName] = useState(preselectedCategory) 
+  const [categoryName, setCategoryName] = useState(preselectedCategory)
   const [fieldDefs, setFieldDefs] = useState([])
   const [fieldValues, setFieldValues] = useState({})
   const [loading, setLoading] = useState(false)
@@ -23,16 +22,14 @@ function ContributePage() {
     address: '',
     latitude: '',
     longitude: '',
-    maps_url: '',
+    map_url: '',
     category: preselectedCategory,
   })
 
-  // URL'den gelen kategori bilgisiyle hem detayları hem de alanları (fields) çek
   useEffect(() => {
     if (preselectedCategory) {
       api.get(`/categories/${preselectedCategory}/`).then((res) => {
         setFieldDefs(res.data.field_definitions || [])
-        // Kategorinin güzel adını (Label) formda göstermek için kaydediyoruz
         if (res.data.name) {
           setCategoryName(res.data.name)
         }
@@ -54,8 +51,6 @@ function ContributePage() {
   function resetForm() {
     setSuccess(false)
     setError('')
-    // DİKKAT: setFieldDefs([]) yapmıyoruz ki "Add Another" dendiğinde 
-    // Free Toilets'a ait özel alanlar ekranda kalmaya devam etsin.
     setFieldValues({})
     setForm({
       name: '',
@@ -64,8 +59,8 @@ function ContributePage() {
       address: '',
       latitude: '',
       longitude: '',
-      maps_url: '',
-      category: preselectedCategory, // Kategoriyi sabit tutuyoruz
+      map_url: '',
+      category: preselectedCategory,
     })
   }
 
@@ -82,14 +77,10 @@ function ContributePage() {
       country: form.country,
       address: form.address,
       category: form.category,
+      latitude: form.latitude || '',
+      longitude: form.longitude || '',
+      map_url: form.map_url || '',
       field_values: fieldValues,
-    }
-
-    if (form.latitude && form.longitude) {
-      payload.latitude = form.latitude
-      payload.longitude = form.longitude
-    } else if (form.maps_url) {
-      payload.maps_url = form.maps_url
     }
 
     api.post('/contributions/venue/', payload, {
@@ -117,7 +108,6 @@ function ContributePage() {
     )
   }
 
-  // Eğer URL'de kategori yoksa kullanıcıyı ana sayfaya veya kategori seçimine geri gönder
   if (!preselectedCategory) {
     return <Navigate to="/" replace />
   }
@@ -158,7 +148,6 @@ function ContributePage() {
 
             <div className="auth-field">
               <label>Category</label>
-              {/* Kategori artık değiştirilemez, sadece okunabilir bir bilgi olarak gösteriliyor */}
               <input
                 type="text"
                 value={categoryName}
@@ -198,6 +187,17 @@ function ContributePage() {
             <h2>Location</h2>
             <p className="contribute-hint">Enter coordinates or paste a Google Maps link.</p>
 
+            <div className="auth-field">
+              <label>Google Maps URL</label>
+              <input
+                type="text"
+                name="map_url"
+                value={form.map_url}
+                onChange={handleChange}
+                placeholder="https://maps.google.com/..."
+              />
+            </div>
+
             <div className="form-row">
               <div className="auth-field">
                 <label>Latitude</label>
@@ -219,17 +219,6 @@ function ContributePage() {
                   placeholder="28.979530"
                 />
               </div>
-            </div>
-
-            <div className="auth-field">
-              <label>Or Google Maps URL</label>
-              <input
-                type="text"
-                name="maps_url"
-                value={form.maps_url}
-                onChange={handleChange}
-                placeholder="https://maps.google.com/..."
-              />
             </div>
 
             {fieldDefs.length > 0 && (
