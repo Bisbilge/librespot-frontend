@@ -1,7 +1,5 @@
+/* MapPage.css */
 
-/* ═══════════════════════════════════════
-   PAGE SHELL
-═══════════════════════════════════════ */
 .map-page {
   display: flex;
   flex-direction: column;
@@ -15,104 +13,6 @@
   overflow: hidden;
 }
 
-/* ═══════════════════════════════════════
-   SIDEBAR
-   — Her zaman position:absolute, transform ile aç/kapat
-   — Hem masaüstü hem mobilde aynı mantık
-═══════════════════════════════════════ */
-.map-sidebar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 280px;
-  background: white;
-  border-right: 1px solid var(--border);
-  z-index: 400;
-  box-shadow: 2px 0 12px rgba(0,0,0,0.15);
-  transform: translateX(0);
-  transition: transform 0.25s ease;
-  overflow: hidden;
-}
-
-.map-sidebar.sidebar-collapsed {
-  transform: translateX(-280px);
-  pointer-events: none;
-}
-
-.sidebar-inner {
-  width: 280px;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 16px;
-  box-sizing: border-box;
-}
-
-.map-sidebar h2 {
-  font-family: 'Linux Libertine', serif;
-  font-size: 18px;
-  font-weight: normal;
-  margin: 0 0 4px 0;
-  white-space: nowrap;
-}
-
-.sidebar-count {
-  font-size: 12px;
-  color: var(--text-light);
-  margin: 0 0 12px 0;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-
-.sidebar-loading {
-  color: var(--text-light);
-  font-size: 14px;
-}
-
-.venue-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.venue-list-item {
-  display: flex;
-  flex-direction: column;
-  padding: 8px 4px;
-  border-bottom: 1px solid var(--border);
-  text-decoration: none;
-  transition: background 0.15s, padding-left 0.15s;
-}
-
-.venue-list-item:hover {
-  background: var(--accent);
-  padding-left: 8px;
-}
-
-.venue-name {
-  font-size: 14px;
-  color: var(--link);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.venue-meta {
-  font-size: 12px;
-  color: var(--text-light);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-
-
-/* ═══════════════════════════════════════
-   MAP CONTAINER
-   — Her zaman tam alanı kaplar, sidebar üstüne gelir
-═══════════════════════════════════════ */
 .map-container {
   position: absolute;
   inset: 0;
@@ -124,45 +24,55 @@
   height: 100%;
 }
 
-/* ═══════════════════════════════════════
-   TOGGLE BUTTON
-═══════════════════════════════════════ */
-.sidebar-toggle-btn {
+/* TOP BAR */
+.map-top-bar {
   position: absolute;
   top: 12px;
-  right: 12px;
+  left: 12px;
   z-index: 1000;
-  background: white;
-  border: 1px solid var(--border);
-  padding: 7px 12px;
-  font-size: 13px;
-  font-family: inherit;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
   display: flex;
   align-items: center;
-  gap: 6px;
-  white-space: nowrap;
+  gap: 12px;
+  background: white;
+  border: 1px solid var(--border);
+  padding: 7px 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   border-radius: 2px;
-  line-height: 1;
+  font-size: 13px;
 }
 
-.sidebar-toggle-btn:hover {
-  background: var(--accent);
+.map-back-link {
+  color: var(--link);
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
-/* ═══════════════════════════════════════
-   ZOOM — toggle butonunun hemen altı
-   toggle btn ~34px yükseklik + 12px top + 8px boşluk = 54px
-═══════════════════════════════════════ */
+.map-back-link:hover {
+  text-decoration: underline;
+}
+
+.map-status {
+  color: var(--text-light);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.map-status-loading {
+  color: var(--text-light);
+}
+
+.map-status-count {
+  color: var(--text-light);
+}
+
+/* ZOOM */
 .leaflet-top.leaflet-right {
-  margin-top: 54px;
+  margin-top: 12px;
   margin-right: 12px;
 }
 
-/* ═══════════════════════════════════════
-   FILTER FAB
-═══════════════════════════════════════ */
+/* FILTER FAB */
 .filter-fab {
   position: absolute;
   bottom: 32px;
@@ -176,9 +86,12 @@
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   border-radius: 2px;
+  transition: background 0.15s;
 }
 
-.filter-fab:hover { background: var(--accent); }
+.filter-fab:hover {
+  background: var(--accent);
+}
 
 .filter-fab-active {
   background: var(--link);
@@ -186,9 +99,36 @@
   border-color: var(--link);
 }
 
-/* ═══════════════════════════════════════
-   FILTER DRAWER
-═══════════════════════════════════════ */
+/* POPUP */
+.map-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 140px;
+}
+
+.map-popup-name {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.map-popup-city {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.map-popup-link {
+  font-size: 12px;
+  color: var(--link);
+  text-decoration: none;
+  margin-top: 4px;
+}
+
+.map-popup-link:hover {
+  text-decoration: underline;
+}
+
+/* FILTER DRAWER */
 .filter-overlay {
   position: fixed;
   inset: 0;
@@ -231,7 +171,9 @@
   line-height: 1;
 }
 
-.filter-close:hover { color: var(--text); }
+.filter-close:hover {
+  color: var(--text);
+}
 
 .filter-drawer-body {
   flex: 1;
@@ -239,7 +181,9 @@
   padding: 16px;
 }
 
-.filter-item { margin-bottom: 16px; }
+.filter-item {
+  margin-bottom: 16px;
+}
 
 .filter-label {
   display: block;
@@ -267,7 +211,9 @@
 }
 
 .filter-select:focus,
-.filter-input:focus { border-color: var(--link); }
+.filter-input:focus {
+  border-color: var(--link);
+}
 
 .filter-drawer-footer {
   padding: 16px;
@@ -286,7 +232,9 @@
   cursor: pointer;
 }
 
-.btn-clear:hover { background: var(--accent); }
+.btn-clear:hover {
+  background: var(--accent);
+}
 
 .btn-apply {
   flex: 1;
@@ -299,19 +247,20 @@
   cursor: pointer;
 }
 
-.btn-apply:hover { opacity: 0.9; }
+.btn-apply:hover {
+  opacity: 0.9;
+}
 
-/* ═══════════════════════════════════════
-   MOBILE KÜÇÜK AYARLAR
-═══════════════════════════════════════ */
+/* MOBILE */
 @media (max-width: 768px) {
-  .filter-drawer { width: 90vw; }
+  .filter-drawer {
+    width: 90vw;
+  }
 
-  .sidebar-toggle-btn {
-    top: 10px;
-    right: 10px;
-    left: auto;
-    padding: 7px 10px;
+  .map-top-bar {
+    top: 8px;
+    left: 8px;
+    padding: 6px 10px;
     font-size: 12px;
   }
 

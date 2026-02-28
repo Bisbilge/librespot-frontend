@@ -15,6 +15,7 @@
   gap: 16px;
 }
 
+/* LOGO */
 .navbar-logo {
   display: flex;
   flex-direction: column;
@@ -34,60 +35,12 @@
   color: var(--text-light);
 }
 
+/* SEARCH */
 .navbar-search {
   flex: 1;
   display: flex;
   gap: 8px;
   min-width: 0;
-}
-
-.navbar-search input {
-  flex: 1;
-  padding: 6px 10px;
-  border: 1px solid var(--border);
-  font-size: 14px;
-  font-family: inherit;
-  outline: none;
-  min-width: 0;
-}
-
-.navbar-search input:focus {
-  border-color: var(--link);
-}
-
-.navbar-search button {
-  padding: 6px 16px;
-  background: var(--nav-bg);
-  border: 1px solid var(--border);
-  cursor: pointer;
-  font-size: 14px;
-  font-family: inherit;
-}
-
-.navbar-search button:hover {
-  background: var(--accent);
-}
-
-.navbar-links {
-  display: flex;
-  gap: 16px;
-  font-size: 14px;
-  flex-shrink: 0;
-  align-items: center;
-}
-
-.navbar-logout {
-  background: none;
-  border: none;
-  color: var(--link);
-  font-size: 14px;
-  cursor: pointer;
-  font-family: inherit;
-  padding: 0;
-}
-
-.navbar-logout:hover {
-  text-decoration: underline;
 }
 
 .search-wrapper {
@@ -159,7 +112,68 @@
   color: var(--text-light);
 }
 
-/* Mobile hamburger */
+/* NAV LINKS */
+.navbar-links {
+  display: flex;
+  gap: 4px;
+  font-size: 14px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.navbar-link {
+  color: var(--text);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 2px;
+  transition: background 0.15s;
+}
+
+.navbar-link:hover {
+  background: var(--accent);
+  text-decoration: none;
+  color: var(--text);
+}
+
+.navbar-profile {
+  font-weight: 600;
+  color: var(--link);
+}
+
+.navbar-btn-login {
+  background: var(--link);
+  color: #fff !important;
+  padding: 5px 14px;
+  border-radius: 2px;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.navbar-btn-login:hover {
+  background: var(--link-hover);
+  text-decoration: none;
+  color: #fff;
+}
+
+.navbar-logout {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 4px 8px;
+  border-radius: 2px;
+  transition: background 0.15s;
+}
+
+.navbar-logout:hover {
+  background: var(--accent);
+  text-decoration: none;
+}
+
+/* HAMBURGER */
 .navbar-menu-btn {
   display: none;
   background: none;
@@ -171,6 +185,7 @@
   flex-shrink: 0;
 }
 
+/* MOBILE */
 @media (max-width: 768px) {
   .navbar-inner {
     flex-wrap: wrap;
@@ -200,7 +215,7 @@
     width: 100%;
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: 4px;
     padding: 12px 0 8px;
     border-top: 1px solid var(--border);
     display: none;
@@ -208,5 +223,12 @@
 
   .navbar-links.navbar-links-open {
     display: flex;
+  }
+
+  .navbar-link,
+  .navbar-logout,
+  .navbar-btn-login {
+    width: 100%;
+    padding: 8px 4px;
   }
 }

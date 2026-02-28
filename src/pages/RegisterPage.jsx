@@ -9,6 +9,7 @@ function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [acceptTerms, setAcceptTerms] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
@@ -22,8 +23,19 @@ function RegisterPage() {
       return
     }
 
+    if (!acceptTerms) {
+      setError('You must accept the Terms of Service and Privacy Policy to register.')
+      return
+    }
+
     setLoading(true)
-    api.post('/auth/register/', { username, email, password, password2: confirmPassword })
+    api.post('/auth/register/', {
+      username,
+      email,
+      password,
+      password2: confirmPassword,
+      accept_terms: acceptTerms,
+    })
       .then(() => {
         setEmailSent(true)
         setLoading(false)
@@ -64,9 +76,7 @@ function RegisterPage() {
       <main className="contribute-main">
         <div className="contribute-box">
           <h1 className="contribute-title">Create an account</h1>
-
           {error && <div className="auth-error">{error}</div>}
-
           <form onSubmit={handleSubmit} className="contribute-form">
             <div className="auth-field">
               <label>Username *</label>
@@ -77,7 +87,6 @@ function RegisterPage() {
                 required
               />
             </div>
-
             <div className="auth-field">
               <label>Email *</label>
               <input
@@ -87,7 +96,6 @@ function RegisterPage() {
                 required
               />
             </div>
-
             <div className="auth-field">
               <label>Password *</label>
               <input
@@ -97,7 +105,6 @@ function RegisterPage() {
                 required
               />
             </div>
-
             <div className="auth-field">
               <label>Confirm Password *</label>
               <input
@@ -107,12 +114,24 @@ function RegisterPage() {
                 required
               />
             </div>
-
+            <div className="auth-field" style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <input
+                type="checkbox"
+                id="acceptTerms"
+                checked={acceptTerms}
+                onChange={e => setAcceptTerms(e.target.checked)}
+              />
+              <label htmlFor="acceptTerms" style={{ fontSize: 13, cursor: 'pointer' }}>
+                I agree to the{' '}
+                <Link to="/terms" target="_blank">Terms of Service</Link>
+                {' '}and{' '}
+                <Link to="/privacy" target="_blank">Privacy Policy</Link>
+              </label>
+            </div>
             <button type="submit" className="auth-btn" disabled={loading}>
               {loading ? 'Creating account…' : 'Create Account'}
             </button>
           </form>
-
           <p style={{ fontSize: 13, marginTop: 16 }}>
             Already have an account? <Link to="/login">Log in</Link>
           </p>

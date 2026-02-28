@@ -14,7 +14,6 @@ import Navbar from '../components/Navbar'
 import api from '../api/client'
 import 'leaflet/dist/leaflet.css'
 import '../styles/MapPage.css'
-
 import L from 'leaflet'
 import iconUrl from 'leaflet/dist/images/marker-icon.png'
 import iconShadow from 'leaflet/dist/images/marker-shadow.png'
@@ -26,7 +25,6 @@ L.Marker.prototype.options.icon = L.icon({
   popupAnchor: [1, -34],
 })
 
-// ─── Viewport Listener ────────────────────────────────────────
 function ViewportListener({ onBoundsChange }) {
   const map = useMap()
 
@@ -40,7 +38,6 @@ function ViewportListener({ onBoundsChange }) {
     })
   }, [map, onBoundsChange])
 
-  // Harita hazır olunca ilk bbox'ı al
   useEffect(() => {
     map.whenReady(notify)
   }, [map, notify])
@@ -53,7 +50,6 @@ function ViewportListener({ onBoundsChange }) {
   return null
 }
 
-// ─── Ana Bileşen ──────────────────────────────────────────────
 function CategoryMapPage() {
   const { slug } = useParams()
   const [venues, setVenues] = useState([])
@@ -64,7 +60,6 @@ function CategoryMapPage() {
   const [filterOpen, setFilterOpen] = useState(false)
   const [venueCount, setVenueCount] = useState(null)
 
-  // İstek yönetimi ve Cache
   const latestReqId = useRef(0)
   const cache = useRef({})
   const lastBoundsRef = useRef(null)
@@ -72,10 +67,8 @@ function CategoryMapPage() {
   const debounceTimer = useRef(null)
   const isFirstLoad = useRef(true)
 
-  // filtersRef'i güncel tut
   useEffect(() => { filtersRef.current = filters }, [filters])
 
-  // Kategori meta verisi — bir kez çek
   useEffect(() => {
     api.get(`/categories/${slug}/`).then(res => {
       setCategory(res.data)
@@ -86,11 +79,9 @@ function CategoryMapPage() {
       .catch(() => {})
   }, [slug])
 
-  // Sadece görünen alandaki verileri çek (isFilterChange parametresi eklendi)
   const fetchViewport = useCallback(async (bounds, activeFilters, isFilterChange = false) => {
     if (!bounds) return
 
-    // Cache oranını artırmak için koordinatları yuvarlıyoruz (~110m hassasiyet)
     const roundCoord = (val) => Number(parseFloat(val).toFixed(3))
     const minLng = roundCoord(bounds.minLng)
     const minLat = roundCoord(bounds.minLat)
@@ -109,65 +100,50 @@ function CategoryMapPage() {
     const cacheKey = params.toString()
     let dataToProcess = null
 
-    // Cache kontrolü
     if (cache.current[cacheKey]) {
       dataToProcess = cache.current[cacheKey]
     }
 
-    // Cache'de yoksa API'den çek
     if (!dataToProcess) {
       const reqId = ++latestReqId.current
       setLoading(true)
-
       try {
         const res = await api.get(`/venues/?${cacheKey}`)
-        if (reqId !== latestReqId.current) return 
-        
+        if (reqId !== latestReqId.current) return
         dataToProcess = Array.isArray(res.data) ? res.data : (res.data.results || [])
         cache.current[cacheKey] = dataToProcess
       } catch (err) {
-        if (reqId === latestReqId.current) console.error('Venue fetch hatası:', err)
+        if (reqId === latestReqId.current) console.error('Venue fetch error:', err)
         return
       } finally {
         if (reqId === latestReqId.current) setLoading(false)
       }
     }
 
-    // Veriyi State'e yazarken Tekilleştirme (Deduplication) yapıyoruz
     if (dataToProcess) {
       setVenues(prev => {
-        // Eğer filtre değiştiyse eski haritayı sil, sadece yeni filtrelenmiş veriyi göster
         if (isFilterChange) return dataToProcess
-
-        // Sadece kaydırma yapıldıysa, mevcut pinleri silme; sadece YENİ olanları ekle
         const existingIds = new Set(prev.map(v => v.id))
         const newItems = dataToProcess.filter(v => !existingIds.has(v.id))
-
-        // Eklenecek yeni pin yoksa state referansını hiç bozma (Titremeyi engelleyen ana nokta)
         if (newItems.length === 0) return prev
-
         return [...prev, ...newItems]
       })
     }
   }, [slug])
 
-  // Harita hareket edince: ilk yüklemede anında, sonrasında 500ms debounce
   const handleBoundsChange = useCallback((bounds) => {
     lastBoundsRef.current = bounds
-
     if (isFirstLoad.current) {
       isFirstLoad.current = false
       fetchViewport(bounds, filtersRef.current, false)
       return
     }
-
     clearTimeout(debounceTimer.current)
     debounceTimer.current = setTimeout(() => {
       fetchViewport(bounds, filtersRef.current, false)
     }, 500)
   }, [fetchViewport])
 
-  // Filtre değişince cache'i temizle, isFilterChange = true olarak yeniden çek
   useEffect(() => {
     cache.current = {}
     if (lastBoundsRef.current) {
@@ -179,7 +155,6 @@ function CategoryMapPage() {
   const clearFilters = () => setFilters({})
   const activeFilterCount = Object.values(filters).filter(v => v !== '' && v !== null).length
 
-  // MARKER'LARI MEMOIZE EDİYORUZ (Gereksiz render'ları ve titremeyi önler)
   const markerElements = useMemo(() => {
     return venues
       .filter(v => v.latitude && v.longitude)
@@ -189,9 +164,13 @@ function CategoryMapPage() {
           position={[parseFloat(venue.latitude), parseFloat(venue.longitude)]}
         >
           <Popup>
-            <strong>{venue.name}</strong><br />
-            {venue.city}<br />
-            <Link to={`/venue/${slug}/${venue.slug}`}>View details →</Link>
+            <div className="map-popup">
+              <strong className="map-popup-name">{venue.name}</strong>
+              {venue.city && <span className="map-popup-city">{venue.city}</span>}
+              <Link to={`/venue/${slug}/${venue.slug}`} className="map-popup-link">
+                View details →
+              </Link>
+            </div>
           </Popup>
         </Marker>
       ))
@@ -214,38 +193,39 @@ function CategoryMapPage() {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='© <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
             />
-
             <ViewportListener onBoundsChange={handleBoundsChange} />
-
             <MarkerClusterGroup>
               {markerElements}
             </MarkerClusterGroup>
           </MapContainer>
 
-          {/* Filtre butonu */}
+          {/* TOP BAR */}
+          <div className="map-top-bar">
+            <Link to={`/category/${slug}`} className="map-back-link">
+              ← {category?.name || 'Back to category'}
+            </Link>
+            <div className="map-status">
+              {loading
+                ? <span className="map-status-loading">Loading…</span>
+                : <span className="map-status-count">
+                    {venues.length} visible
+                    {venueCount !== null && ` of ${venueCount} total`}
+                  </span>
+              }
+            </div>
+          </div>
+
+          {/* FILTER FAB */}
           <button
             className={`filter-fab${activeFilterCount > 0 ? ' filter-fab-active' : ''}`}
             onClick={() => setFilterOpen(true)}
           >
             ⚙ Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
           </button>
-
-          {/* Durum çubuğu */}
-          <div className="map-status-bar">
-            {loading
-              ? <span className="map-status-loading">⟳ Yükleniyor…</span>
-              : (
-                <span className="map-status-count">
-                  {venues.length} venue görünüyor
-                  {venueCount !== null && ` · ${venueCount} toplam`}
-                </span>
-              )
-            }
-          </div>
         </div>
       </div>
 
-      {/* Filtre Drawer */}
+      {/* FILTER DRAWER */}
       {filterOpen && (
         <div className="filter-overlay" onClick={() => setFilterOpen(false)}>
           <div className="filter-drawer" onClick={e => e.stopPropagation()}>
@@ -279,6 +259,11 @@ function CategoryMapPage() {
                   )}
                 </div>
               ))}
+              {fieldDefs.filter(f => f.is_public).length === 0 && (
+                <p style={{ fontSize: 13, color: 'var(--text-light)' }}>
+                  No filterable fields in this category.
+                </p>
+              )}
             </div>
             <div className="filter-drawer-footer">
               <button onClick={clearFilters} className="btn-clear">Clear All</button>

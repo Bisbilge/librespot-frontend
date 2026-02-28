@@ -50,19 +50,14 @@ function Navbar() {
   return (
     <header className="navbar">
       <div className="navbar-inner">
+
+        {/* LOGO */}
         <Link to="/" className="navbar-logo" onClick={handleNavClick}>
           <span className="logo-text">Mapedia</span>
           <span className="logo-tagline">The Free Encyclopedia of Places</span>
         </Link>
 
-        <button
-          className="navbar-menu-btn"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
-        >
-          {menuOpen ? '✕' : '☰'}
-        </button>
-
+        {/* SEARCH */}
         <div className="navbar-search">
           <div className="search-wrapper">
             <input
@@ -99,22 +94,37 @@ function Navbar() {
           </div>
         </div>
 
+        {/* HAMBURGER */}
+        <button
+          className="navbar-menu-btn"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle menu"
+        >
+          {menuOpen ? '✕' : '☰'}
+        </button>
+
+        {/* NAV LINKS */}
         <nav className={`navbar-links${menuOpen ? ' navbar-links-open' : ''}`}>
+          <Link to="/about" className="navbar-link" onClick={handleNavClick}>About</Link>
           {token && (
-            <Link to="/create-category" onClick={handleNavClick}>New Category</Link>
+            <Link to="/contribute" className="navbar-link" onClick={handleNavClick}>Contribute</Link>
           )}
           {token && (
-            <Link to="/moderation" onClick={handleNavClick}>Moderation</Link>
+            <Link to="/create-category" className="navbar-link" onClick={handleNavClick}>New Category</Link>
           )}
           {token && (
-            <Link to="/profile" className="navbar-profile" onClick={handleNavClick}>Profile</Link>
+            <Link to="/moderation" className="navbar-link" onClick={handleNavClick}>Moderation</Link>
+          )}
+          {token && (
+            <Link to="/profile" className="navbar-profile navbar-link" onClick={handleNavClick}>Profile</Link>
           )}
           {token ? (
             <button onClick={handleLogout} className="navbar-logout">Log out</button>
           ) : (
-            <Link to="/login" onClick={handleNavClick}>Log in</Link>
+            <Link to="/login" className="navbar-btn-login" onClick={handleNavClick}>Log in</Link>
           )}
         </nav>
+
       </div>
     </header>
   )
