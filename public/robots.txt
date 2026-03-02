@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Google botlarına yol haritasını göster
+Sitemap: https://mapedia.org/sitemap.xml

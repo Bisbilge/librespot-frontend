@@ -1,3 +1,5 @@
+// src/pages/CategoryDetailPage.jsx
+
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
@@ -8,20 +10,26 @@ function CategoryDetailPage() {
   const { slug } = useParams()
   const navigate = useNavigate()
   const [category, setCategory] = useState(null)
+  const [recentVenues, setRecentVenues] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    // slug değiştiğinde loading state'ini tekrar true yapmak iyi bir pratiktir
     setLoading(true)
-    api.get(`/categories/${slug}/`)
-      .then(res => { 
-        setCategory(res.data)
-        setLoading(false) 
+    
+    Promise.all([
+      api.get(`/categories/${slug}/`),
+      api.get(`/venues/?category=${slug}&page_size=5`)
+    ])
+      .then(([catRes, venuesRes]) => {
+        setCategory(catRes.data)
+        setRecentVenues(venuesRes.data.results || venuesRes.data || [])
+        document.title = `${catRes.data.name} | Mapedia`
+        setLoading(false)
       })
-      .catch(() => { 
+      .catch(() => {
         setError('Category not found.')
-        setLoading(false) 
+        setLoading(false)
       })
   }, [slug])
 
@@ -57,6 +65,8 @@ function CategoryDetailPage() {
             <div className="catdetail-breadcrumb">
               <Link to="/">Mapedia</Link>
               <span className="catdetail-breadcrumb-sep">›</span>
+              <Link to="/categories">Categories</Link>
+              <span className="catdetail-breadcrumb-sep">›</span>
               <span>{category.name}</span>
             </div>
             <div className="catdetail-title-row">
@@ -66,104 +76,168 @@ function CategoryDetailPage() {
             {category.description && (
               <p className="catdetail-desc">{category.description}</p>
             )}
-            <div className="catdetail-btn-row">
-              <button
-                className="catdetail-map-btn"
-                onClick={() => navigate(`/category/${slug}/map`)}
-              >
-                View on Map →
-              </button>
-              <Link
-                to={`/contribute?category=${slug}`}
-                className="catdetail-contribute-btn"
-              >
-                + Add a Venue
-              </Link>
-            </div>
+          </div>
+
+          {/* ACTION BUTTONS */}
+          <div className="catdetail-actions">
+            <Link to={`/category/${slug}/venues`} className="catdetail-action-btn primary">
+              View All Venues ({category.venue_count || 0})
+            </Link>
+            <button
+              className="catdetail-action-btn"
+              onClick={() => navigate(`/category/${slug}/map`)}
+            >
+              View on Map
+            </button>
+            <Link to={`/contribute?category=${slug}`} className="catdetail-action-btn">
+              + Add Venue
+            </Link>
           </div>
 
           {/* STATS */}
-          <div className="catdetail-meta">
-            {category.venue_count !== undefined && (
-              <div className="catdetail-stat">
-                <span className="catdetail-stat-value">{category.venue_count}</span>
-                <span className="catdetail-stat-label">Venues</span>
-              </div>
-            )}
-            {publicFields.length > 0 && (
-              <div className="catdetail-stat">
-                <span className="catdetail-stat-value">{publicFields.length}</span>
-                <span className="catdetail-stat-label">Fields tracked</span>
-              </div>
-            )}
-            {category.moderators?.length > 0 && (
-              <div className="catdetail-stat">
-                <span className="catdetail-stat-value">{category.moderators.length}</span>
-                <span className="catdetail-stat-label">Moderators</span>
-              </div>
-            )}
-          </div>
-
-          {/* ABOUT */}
-          <div className="catdetail-infobox">
-            <div className="catdetail-infobox-inner">
-              <div className="catdetail-infobox-row">
-                <span className="catdetail-infobox-label">License</span>
-                <span className="catdetail-infobox-value">
-                  {/* HATA DÜZELTİLDİ: <a> etiketi eklendi */}
-                  <a 
-                    href="https://creativecommons.org/licenses/by-sa/4.0/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    CC BY-SA 4.0
-                  </a>
-                </span>
-              </div>
-              {category.owner && (
-                <div className="catdetail-infobox-row">
-                  <span className="catdetail-infobox-label">Owner</span>
-                  <span className="catdetail-infobox-value">{category.owner.username}</span>
-                </div>
-              )}
-              {category.moderators?.length > 0 && (
-                <div className="catdetail-infobox-row">
-                  <span className="catdetail-infobox-label">Moderators</span>
-                  <span className="catdetail-infobox-value">
-                    {category.moderators.map(m => m.username).join(', ')}
-                  </span>
-                </div>
-              )}
+          <div className="catdetail-stats">
+            <div className="catdetail-stat">
+              <span className="catdetail-stat-value">{category.venue_count || 0}</span>
+              <span className="catdetail-stat-label">Venues</span>
+            </div>
+            <div className="catdetail-stat">
+              <span className="catdetail-stat-value">{publicFields.length}</span>
+              <span className="catdetail-stat-label">Fields</span>
+            </div>
+            <div className="catdetail-stat">
+              <span className="catdetail-stat-value">
+                {(category.moderators?.length || 0) + (category.owner ? 1 : 0)}
+              </span>
+              <span className="catdetail-stat-label">Maintainers</span>
             </div>
           </div>
 
-          {/* PUBLIC FIELDS */}
-          {publicFields.length > 0 && (
+          {/* RECENT VENUES */}
+          {recentVenues.length > 0 && (
             <div className="catdetail-section">
-              <h2 className="catdetail-section-title">Fields tracked in this category</h2>
-              <p className="catdetail-section-sub">
-                Each venue in this category documents the following data points.
-              </p>
-              <ul className="catdetail-fields">
-                {publicFields.map(f => (
-                  <li key={f.id} className="catdetail-field-item">
-                    <div className="catdetail-field-top">
-                      <span className="catdetail-field-label">{f.label}</span>
-                      <span className="catdetail-field-type">{f.field_type}</span>
-                      {f.is_required && (
-                        <span className="catdetail-field-badge required">required</span>
-                      )}
-                    </div>
-                    {f.help_text && (
-                      <span className="catdetail-field-help">{f.help_text}</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
+              <h2 className="catdetail-section-title">Recent Venues</h2>
+              <table className="catdetail-venues-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Location</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentVenues.map(venue => (
+                    <tr key={venue.id}>
+                      <td>
+                        <Link to={`/venue/${venue.slug}`} className="catdetail-venue-link">
+                          {venue.name}
+                        </Link>
+                      </td>
+                      <td className="catdetail-venue-location">
+                        {[venue.city, venue.country].filter(Boolean).join(', ') || '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {category.venue_count > 5 && (
+                <div className="catdetail-venues-more">
+                  <Link to={`/category/${slug}/venues`}>
+                    View all {category.venue_count} venues →
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 
-          {/* CONTRIBUTE CTA */}
+          {/* INFOBOX */}
+          <div className="catdetail-infobox">
+            <div className="catdetail-infobox-title">About this category</div>
+            <table className="catdetail-infobox-table">
+              <tbody>
+                {category.owner && (
+                  <tr>
+                    <td>Owner</td>
+                    <td>
+                      <Link to={`/profile/${category.owner.username}`}>
+                        @{category.owner.username}
+                      </Link>
+                    </td>
+                  </tr>
+                )}
+                {category.moderators?.length > 0 && (
+                  <tr>
+                    <td>Moderators</td>
+                    <td>
+                      {category.moderators.map((m, i) => (
+                        <span key={m.id}>
+                          {i > 0 && ', '}
+                          <Link to={`/profile/${m.username}`}>@{m.username}</Link>
+                        </span>
+                      ))}
+                    </td>
+                  </tr>
+                )}
+                <tr>
+                  <td>Fields</td>
+                  <td>{publicFields.length} data points tracked</td>
+                </tr>
+                <tr>
+                  <td>License</td>
+                  <td>
+                    <a 
+                      href="https://creativecommons.org/licenses/by-sa/4.0/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      CC BY-SA 4.0
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* FIELDS */}
+          {publicFields.length > 0 && (
+            <div className="catdetail-section">
+              <h2 className="catdetail-section-title">Data Schema</h2>
+              <p className="catdetail-section-sub">
+                Each venue in this category documents the following fields:
+              </p>
+              <table className="catdetail-fields-table">
+                <thead>
+                  <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {publicFields.map(f => (
+                    <tr key={f.id}>
+                      <td>
+                        <span className="catdetail-field-name">{f.label}</span>
+                        {f.help_text && (
+                          <span className="catdetail-field-help">{f.help_text}</span>
+                        )}
+                      </td>
+                      <td>
+                        <span className="catdetail-field-type">{f.field_type}</span>
+                      </td>
+                      <td>
+                        {f.is_required ? (
+                          <span className="catdetail-badge required">Yes</span>
+                        ) : (
+                          <span className="catdetail-badge optional">No</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* CTA */}
           <div className="catdetail-cta">
             <p>
               Know a place that belongs here?{' '}

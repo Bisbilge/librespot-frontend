@@ -1,0 +1,362 @@
+/* src/styles/CategoryVenuesPage.css */
+
+.catvenues-main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px 20px 64px;
+}
+
+.catvenues-container {
+  background: white;
+  border: 1px solid var(--border);
+}
+
+.catvenues-loading,
+.catvenues-error {
+  padding: 48px;
+  text-align: center;
+  color: var(--text-light);
+}
+
+/* HEADER */
+.catvenues-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.catvenues-breadcrumb {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.catvenues-breadcrumb a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+.catvenues-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.catvenues-title {
+  font-family: 'Linux Libertine', serif;
+  font-size: 28px;
+  font-weight: normal;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.catvenues-icon {
+  font-size: 28px;
+}
+
+.catvenues-subtitle {
+  font-size: 14px;
+  color: var(--text-light);
+  margin: 0;
+}
+
+/* TOOLBAR */
+.catvenues-toolbar {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--nav-bg);
+  flex-wrap: wrap;
+}
+
+.catvenues-filters {
+  display: flex;
+  gap: 0;
+  flex: 1;
+}
+
+.catvenues-search,
+.catvenues-city {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  font-size: 13px;
+  font-family: inherit;
+  background: white;
+  min-width: 120px;
+}
+
+.catvenues-search {
+  flex: 2;
+}
+
+.catvenues-city {
+  flex: 1;
+  border-left: none;
+}
+
+.catvenues-search:focus,
+.catvenues-city:focus {
+  outline: none;
+  border-color: var(--link);
+}
+
+.catvenues-search-btn,
+.catvenues-clear-btn {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-left: none;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  background: white;
+}
+
+.catvenues-search-btn {
+  background: var(--link);
+  color: white;
+  border-color: var(--link);
+}
+
+.catvenues-search-btn:hover {
+  background: #0052a3;
+}
+
+.catvenues-clear-btn:hover {
+  background: var(--accent);
+}
+
+.catvenues-sort {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  font-size: 13px;
+  font-family: inherit;
+  background: white;
+  cursor: pointer;
+}
+
+/* RESULTS INFO */
+.catvenues-results-info {
+  padding: 12px 24px;
+  font-size: 13px;
+  color: var(--text-light);
+  background: #fffbf0;
+  border-bottom: 1px solid var(--border);
+}
+
+/* TABLE */
+.catvenues-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.catvenues-table th {
+  text-align: left;
+  padding: 12px 24px;
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: normal;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.catvenues-table td {
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.catvenues-table tr:hover {
+  background: var(--nav-bg);
+}
+
+.catvenues-venue-link {
+  color: var(--link);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.catvenues-venue-link:hover {
+  text-decoration: underline;
+}
+
+/* EMPTY */
+.catvenues-empty {
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.catvenues-empty p {
+  color: var(--text-light);
+  margin-bottom: 16px;
+}
+
+.catvenues-add-link {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: var(--accent);
+  border: 1px solid var(--border);
+  color: var(--link);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.catvenues-add-link:hover {
+  background: var(--link);
+  color: white;
+  border-color: var(--link);
+}
+
+/* PAGINATION */
+.catvenues-pagination {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--nav-bg);
+}
+
+.catvenues-page-numbers {
+  display: flex;
+  gap: 0;
+}
+
+.catvenues-page-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  margin-left: -1px;
+  background: white;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.catvenues-page-btn:first-child {
+  margin-left: 0;
+}
+
+.catvenues-page-btn:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--link);
+  position: relative;
+  z-index: 1;
+}
+
+.catvenues-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.catvenues-page-btn.active {
+  background: var(--link);
+  color: white;
+  border-color: var(--link);
+  position: relative;
+  z-index: 1;
+}
+
+.catvenues-page-dots {
+  padding: 0 6px;
+  color: var(--text-light);
+}
+
+.catvenues-page-info {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+/* FOOTER ACTIONS */
+.catvenues-footer-actions {
+  display: flex;
+  gap: 0;
+  border-top: 1px solid var(--border);
+}
+
+.catvenues-map-btn,
+.catvenues-add-btn {
+  flex: 1;
+  padding: 14px 16px;
+  text-align: center;
+  font-size: 13px;
+  text-decoration: none;
+  border-right: 1px solid var(--border);
+}
+
+.catvenues-map-btn:last-child,
+.catvenues-add-btn:last-child {
+  border-right: none;
+}
+
+.catvenues-map-btn {
+  background: var(--nav-bg);
+  color: var(--link);
+}
+
+.catvenues-map-btn:hover {
+  background: var(--accent);
+}
+
+.catvenues-add-btn {
+  background: var(--link);
+  color: white;
+}
+
+.catvenues-add-btn:hover {
+  background: #0052a3;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .catvenues-toolbar {
+    flex-direction: column;
+  }
+
+  .catvenues-filters {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .catvenues-search,
+  .catvenues-city,
+  .catvenues-search-btn,
+  .catvenues-clear-btn {
+    border-left: 1px solid var(--border);
+  }
+
+  .catvenues-table th:nth-child(3),
+  .catvenues-table td:nth-child(3) {
+    display: none;
+  }
+
+  .catvenues-pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .catvenues-page-info {
+    width: 100%;
+    text-align: center;
+    margin: 8px 0 0 0;
+  }
+
+  .catvenues-footer-actions {
+    flex-direction: column;
+  }
+
+  .catvenues-map-btn,
+  .catvenues-add-btn {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .catvenues-add-btn {
+    border-bottom: none;
+  }
+}

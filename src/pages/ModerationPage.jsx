@@ -11,7 +11,11 @@ const FIELD_TYPES = [
   { value: 'integer', label: 'Integer' },
   { value: 'decimal', label: 'Decimal' },
   { value: 'url', label: 'URL' },
+  { value: 'choice', label: 'Single Choice' },
+  { value: 'multi_choice', label: 'Multiple Choice' },
 ]
+
+const CHOICE_FIELD_TYPES = ['choice', 'multi_choice']
 
 const EMPTY_FIELD_FORM = {
   name: '',
@@ -23,6 +27,8 @@ const EMPTY_FIELD_FORM = {
   order: 0,
 }
 
+const EMPTY_CHOICE = { value: '', label: '', icon: '', order: 0 }
+
 // ─── FIELD MANAGER ───────────────────────────────────────────
 function FieldManager({ categorySlug, token }) {
   const [fields, setFields] = useState([])
@@ -30,6 +36,7 @@ function FieldManager({ categorySlug, token }) {
   const [showForm, setShowForm] = useState(false)
   const [editingField, setEditingField] = useState(null)
   const [form, setForm] = useState(EMPTY_FIELD_FORM)
+  const [choices, setChoices] = useState([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -48,6 +55,7 @@ function FieldManager({ categorySlug, token }) {
   const openAddForm = () => {
     setEditingField(null)
     setForm(EMPTY_FIELD_FORM)
+    setChoices([{ ...EMPTY_CHOICE }])
     setError('')
     setShowForm(true)
   }
@@ -63,6 +71,15 @@ function FieldManager({ categorySlug, token }) {
       help_text: field.help_text || '',
       order: field.order,
     })
+    // Mevcut choices'ları yükle
+    if (CHOICE_FIELD_TYPES.includes(field.field_type) && field.choices) {
+      setChoices(field.choices.length > 0 
+        ? field.choices.map(c => ({ ...c })) 
+        : [{ ...EMPTY_CHOICE }]
+      )
+    } else {
+      setChoices([{ ...EMPTY_CHOICE }])
+    }
     setError('')
     setShowForm(true)
   }
@@ -71,12 +88,45 @@ function FieldManager({ categorySlug, token }) {
     setShowForm(false)
     setEditingField(null)
     setForm(EMPTY_FIELD_FORM)
+    setChoices([])
     setError('')
   }
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
+    
+    // Field type değiştiğinde choices'ı başlat
+    if (name === 'field_type') {
+      if (CHOICE_FIELD_TYPES.includes(value)) {
+        setChoices([{ ...EMPTY_CHOICE }])
+      } else {
+        setChoices([])
+      }
+    }
+  }
+
+  // Choice handlers
+  const handleChoiceChange = (index, key, value) => {
+    setChoices(prev => prev.map((c, i) => i === index ? { ...c, [key]: value } : c))
+  }
+
+  const addChoice = () => {
+    setChoices(prev => [...prev, { ...EMPTY_CHOICE, order: prev.length }])
+  }
+
+  const removeChoice = (index) => {
+    if (choices.length <= 1) return
+    setChoices(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const moveChoice = (index, direction) => {
+    const newIndex = index + direction
+    if (newIndex < 0 || newIndex >= choices.length) return
+    const arr = [...choices]
+    ;[arr[index], arr[newIndex]] = [arr[newIndex], arr[index]]
+    arr.forEach((c, i) => c.order = i)
+    setChoices(arr)
   }
 
   const handleSave = () => {
@@ -84,20 +134,47 @@ function FieldManager({ categorySlug, token }) {
       setError('Name and Label are required.')
       return
     }
+
+    // Choice validation
+    if (CHOICE_FIELD_TYPES.includes(form.field_type)) {
+      const validChoices = choices.filter(c => c.value.trim() && c.label.trim())
+      if (validChoices.length < 2) {
+        setError('At least 2 options with value and label are required.')
+        return
+      }
+      // Duplicate value check
+      const values = validChoices.map(c => c.value.trim().toLowerCase())
+      if (new Set(values).size !== values.length) {
+        setError('Option values must be unique.')
+        return
+      }
+    }
+
     setSaving(true)
     setError('')
+
+    const payload = {
+      ...form,
+      choices: CHOICE_FIELD_TYPES.includes(form.field_type)
+        ? choices
+            .filter(c => c.value.trim() && c.label.trim())
+            .map((c, i) => ({ ...c, order: i }))
+        : []
+    }
+
     const request = editingField
-      ? api.patch(`/categories/${categorySlug}/fields/${editingField.id}/edit/`, form, {
+      ? api.patch(`/categories/${categorySlug}/fields/${editingField.id}/edit/`, payload, {
           headers: { Authorization: `Bearer ${token}` }
         })
-      : api.post(`/categories/${categorySlug}/fields/add/`, form, {
+      : api.post(`/categories/${categorySlug}/fields/add/`, payload, {
           headers: { Authorization: `Bearer ${token}` }
         })
+
     request
       .then(() => { loadFields(); closeForm() })
       .catch(err => {
         const data = err.response?.data
-        setError(data ? Object.values(data).flat().join(' ') : 'Something went wrong.')
+        setError(data ? (typeof data === 'string' ? data : Object.values(data).flat().join(' ')) : 'Something went wrong.')
       })
       .finally(() => setSaving(false))
   }
@@ -108,6 +185,8 @@ function FieldManager({ categorySlug, token }) {
       headers: { Authorization: `Bearer ${token}` }
     }).then(() => loadFields())
   }
+
+  const isChoiceField = (type) => CHOICE_FIELD_TYPES.includes(type)
 
   if (loading) return <p className="mod-empty">Loading fields...</p>
 
@@ -139,7 +218,12 @@ function FieldManager({ categorySlug, token }) {
                 <td>{f.order}</td>
                 <td><code>{f.name}</code></td>
                 <td>{f.label}</td>
-                <td>{FIELD_TYPES.find(t => t.value === f.field_type)?.label || f.field_type}</td>
+                <td>
+                  {FIELD_TYPES.find(t => t.value === f.field_type)?.label || f.field_type}
+                  {isChoiceField(f.field_type) && f.choices_count > 0 && (
+                    <span className="field-choices-count"> ({f.choices_count})</span>
+                  )}
+                </td>
                 <td>{f.is_required ? '✅' : '—'}</td>
                 <td className="field-help-text">{f.help_text || '—'}</td>
                 <td className="field-actions">
@@ -152,59 +236,177 @@ function FieldManager({ categorySlug, token }) {
         </table>
       )}
 
+      {/* MODAL */}
       {showForm && (
         <div className="field-modal-overlay" onClick={closeForm}>
-          <div className="field-modal" onClick={e => e.stopPropagation()}>
+          <div className={`field-modal ${isChoiceField(form.field_type) ? 'field-modal-large' : ''}`} onClick={e => e.stopPropagation()}>
             <div className="field-modal-header">
               <h3>{editingField ? 'Edit Field' : 'Add New Field'}</h3>
               <button className="field-modal-close" onClick={closeForm}>✕</button>
             </div>
+
             {error && <p className="field-error">{error}</p>}
+
             <div className="field-form-grid">
               <div className="field-form-group">
                 <label>Field Name <span className="field-required">*</span></label>
-                <input name="name" value={form.name} onChange={handleChange}
-                  placeholder="e.g. wifi_speed" disabled={!!editingField} />
+                <input 
+                  name="name" 
+                  value={form.name} 
+                  onChange={handleChange}
+                  placeholder="e.g. wifi_speed" 
+                  disabled={!!editingField} 
+                />
                 {editingField && <small>Name cannot be changed after creation.</small>}
               </div>
+
               <div className="field-form-group">
                 <label>Display Label <span className="field-required">*</span></label>
-                <input name="label" value={form.label} onChange={handleChange}
-                  placeholder="e.g. WiFi Speed (Mbps)" />
+                <input 
+                  name="label" 
+                  value={form.label} 
+                  onChange={handleChange}
+                  placeholder="e.g. WiFi Speed (Mbps)" 
+                />
               </div>
+
               <div className="field-form-group">
                 <label>Field Type</label>
-                <select name="field_type" value={form.field_type} onChange={handleChange}
-                  disabled={!!editingField}>
+                <select 
+                  name="field_type" 
+                  value={form.field_type} 
+                  onChange={handleChange}
+                  disabled={!!editingField}
+                >
                   {FIELD_TYPES.map(t => (
                     <option key={t.value} value={t.value}>{t.label}</option>
                   ))}
                 </select>
                 {editingField && <small>Type cannot be changed after creation.</small>}
               </div>
+
               <div className="field-form-group">
                 <label>Order</label>
-                <input name="order" type="number" value={form.order}
-                  onChange={handleChange} min="0" />
+                <input 
+                  name="order" 
+                  type="number" 
+                  value={form.order}
+                  onChange={handleChange} 
+                  min="0" 
+                />
               </div>
+
               <div className="field-form-group field-form-full">
                 <label>Help Text</label>
-                <input name="help_text" value={form.help_text} onChange={handleChange}
-                  placeholder="Hint shown to users filling in this field" />
+                <input 
+                  name="help_text" 
+                  value={form.help_text} 
+                  onChange={handleChange}
+                  placeholder="Hint shown to users filling in this field" 
+                />
               </div>
+
               <div className="field-form-group field-form-checkboxes">
                 <label>
-                  <input type="checkbox" name="is_required" checked={form.is_required}
-                    onChange={handleChange} />
+                  <input 
+                    type="checkbox" 
+                    name="is_required" 
+                    checked={form.is_required}
+                    onChange={handleChange} 
+                  />
                   Required
                 </label>
                 <label>
-                  <input type="checkbox" name="is_public" checked={form.is_public}
-                    onChange={handleChange} />
+                  <input 
+                    type="checkbox" 
+                    name="is_public" 
+                    checked={form.is_public}
+                    onChange={handleChange} 
+                  />
                   Public
                 </label>
               </div>
             </div>
+
+            {/* CHOICES SECTION */}
+            {isChoiceField(form.field_type) && (
+              <div className="field-choices-section">
+                <div className="field-choices-header">
+                  <h4>
+                    {form.field_type === 'choice' ? '📋 Options (Select One)' : '☑️ Options (Select Multiple)'}
+                  </h4>
+                  <button type="button" className="field-btn-add-choice" onClick={addChoice}>
+                    + Add Option
+                  </button>
+                </div>
+
+                <p className="field-choices-hint">
+                  {form.field_type === 'choice' 
+                    ? 'Users will select ONE option from this list.'
+                    : 'Users can select MULTIPLE options from this list.'}
+                </p>
+
+                <div className="field-choices-list">
+                  {choices.map((choice, index) => (
+                    <div key={index} className="field-choice-row">
+                      <div className="field-choice-order">
+                        <button 
+                          type="button"
+                          className="field-choice-move"
+                          onClick={() => moveChoice(index, -1)}
+                          disabled={index === 0}
+                        >↑</button>
+                        <button 
+                          type="button"
+                          className="field-choice-move"
+                          onClick={() => moveChoice(index, 1)}
+                          disabled={index === choices.length - 1}
+                        >↓</button>
+                      </div>
+
+                      <input
+                        type="text"
+                        className="field-choice-value"
+                        placeholder="value"
+                        value={choice.value}
+                        onChange={(e) => handleChoiceChange(index, 'value', e.target.value)}
+                        disabled={editingField && choice.id}
+                      />
+
+                      <input
+                        type="text"
+                        className="field-choice-label"
+                        placeholder="Label"
+                        value={choice.label}
+                        onChange={(e) => handleChoiceChange(index, 'label', e.target.value)}
+                      />
+
+                      <input
+                        type="text"
+                        className="field-choice-icon"
+                        placeholder="icon"
+                        value={choice.icon || ''}
+                        onChange={(e) => handleChoiceChange(index, 'icon', e.target.value)}
+                      />
+
+                      <button
+                        type="button"
+                        className="field-choice-remove"
+                        onClick={() => removeChoice(index)}
+                        disabled={choices.length <= 1}
+                      >✕</button>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="field-choices-note">
+                  <strong>value:</strong> internal key (no spaces) &nbsp;|&nbsp;
+                  <strong>Label:</strong> shown to users &nbsp;|&nbsp;
+                  <strong>icon:</strong> emoji or icon class (optional)
+                </p>
+              </div>
+            )}
+
             <div className="field-modal-actions">
               <button className="field-btn-cancel" onClick={closeForm}>Cancel</button>
               <button className="field-btn-save" onClick={handleSave} disabled={saving}>
@@ -225,26 +427,24 @@ function VenueManager({ categorySlug, token }) {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
-
   const PAGE_SIZE = 20
 
   useEffect(() => {
     setPage(1)
-    loadVenues(1, search)
   }, [categorySlug, search])
 
   useEffect(() => {
-    loadVenues(page, search)
-  }, [page])
+    loadVenues()
+  }, [categorySlug, page, search])
 
-  const loadVenues = (p, q) => {
+  const loadVenues = () => {
     setLoading(true)
     const params = new URLSearchParams({
       category: categorySlug,
-      page: p,
-      page_size: PAGE_SIZE,
+      page: page.toString(),
+      page_size: PAGE_SIZE.toString(),
     })
-    if (q?.trim()) params.append('search', q.trim())
+    if (search.trim()) params.append('search', search.trim())
 
     api.get(`/venues/?${params}`, {
       headers: { Authorization: `Bearer ${token}` }
@@ -267,8 +467,13 @@ function VenueManager({ categorySlug, token }) {
     api.delete(`/venues/${venue.slug}/delete/`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(() => loadVenues(page, search))
+      .then(() => loadVenues())
       .catch(err => console.error('Silinemedi:', err))
+  }
+
+  const handleSearch = (e) => {
+    setSearch(e.target.value)
+    setPage(1)
   }
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE)
@@ -276,17 +481,26 @@ function VenueManager({ categorySlug, token }) {
   const getPageNumbers = () => {
     const delta = 2
     const range = []
-    for (let i = Math.max(1, page - delta); i <= Math.min(totalPages, page + delta); i++) {
+    const left = Math.max(1, page - delta)
+    const right = Math.min(totalPages, page + delta)
+
+    for (let i = left; i <= right; i++) {
       range.push(i)
     }
-    if (range[0] > 1) {
+
+    if (left > 2) {
       range.unshift('...')
+    }
+    if (left > 1) {
       range.unshift(1)
     }
-    if (range[range.length - 1] < totalPages) {
+    if (right < totalPages - 1) {
       range.push('...')
+    }
+    if (right < totalPages) {
       range.push(totalPages)
     }
+
     return range
   }
 
@@ -304,7 +518,7 @@ function VenueManager({ categorySlug, token }) {
           type="text"
           placeholder="Search venues..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={handleSearch}
         />
       </div>
 
@@ -327,7 +541,7 @@ function VenueManager({ categorySlug, token }) {
               {venues.map(v => (
                 <tr key={v.id}>
                   <td>
-                    <Link to={`/venue/${categorySlug}/${v.slug}`} className="venue-manager-link">
+                    <Link to={`/venue/${v.slug}`} className="venue-manager-link">
                       {v.name}
                     </Link>
                   </td>
@@ -350,40 +564,43 @@ function VenueManager({ categorySlug, token }) {
             </tbody>
           </table>
 
+          {/* PAGINATION */}
           {totalPages > 1 && (
             <div className="venue-pagination">
               <button
                 className="venue-page-btn"
-                onClick={() => setPage(p => p - 1)}
+                onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
               >
-                ←
+                ← Prev
               </button>
 
-              {getPageNumbers().map((num, i) =>
-                num === '...' ? (
-                  <span key={`dots-${i}`} className="venue-page-dots">…</span>
-                ) : (
-                  <button
-                    key={num}
-                    className={`venue-page-btn ${page === num ? 'venue-page-btn-active' : ''}`}
-                    onClick={() => setPage(num)}
-                  >
-                    {num}
-                  </button>
-                )
-              )}
+              <div className="venue-page-numbers">
+                {getPageNumbers().map((num, i) =>
+                  num === '...' ? (
+                    <span key={`dots-${i}`} className="venue-page-dots">…</span>
+                  ) : (
+                    <button
+                      key={num}
+                      className={`venue-page-btn ${page === num ? 'venue-page-btn-active' : ''}`}
+                      onClick={() => setPage(num)}
+                    >
+                      {num}
+                    </button>
+                  )
+                )}
+              </div>
 
               <button
                 className="venue-page-btn"
-                onClick={() => setPage(p => p + 1)}
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
               >
-                →
+                Next →
               </button>
 
               <span className="venue-page-info">
-                {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, totalCount)} / {totalCount}
+                {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, totalCount)} of {totalCount}
               </span>
             </div>
           )}
@@ -445,10 +662,8 @@ function CategorySettings({ categorySlug, token }) {
       <div className="field-manager-header">
         <h3>Category Settings</h3>
       </div>
-
       {error && <p className="field-error">{error}</p>}
       {success && <p className="cat-settings-success">Saved successfully.</p>}
-
       <div className="cat-settings-form">
         <div className="field-form-group">
           <label>Name</label>
@@ -469,7 +684,6 @@ function CategorySettings({ categorySlug, token }) {
           />
         </div>
       </div>
-
       <div className="field-modal-actions" style={{ justifyContent: 'flex-start', marginTop: 16 }}>
         <button className="field-btn-save" onClick={handleSave} disabled={saving}>
           {saving ? 'Saving...' : 'Save Changes'}
@@ -556,11 +770,26 @@ function ModerationPage() {
       .finally(() => setProcessing(false))
   }
 
+  // Field value'ları göster (choice/multi_choice dahil)
+  const renderFieldValue = (key, value) => {
+    // JSON array mi kontrol et (multi_choice)
+    try {
+      const parsed = JSON.parse(value)
+      if (Array.isArray(parsed)) {
+        return parsed.join(', ')
+      }
+    } catch {
+      // JSON değilse olduğu gibi döndür
+    }
+    return String(value)
+  }
+
   const renderPayload = (payload) => {
     const skip = ['field_values']
     const fields = Object.entries(payload).filter(
       ([key, value]) => !skip.includes(key) && value !== '' && value !== null
     )
+
     return (
       <table className="mod-payload-table">
         <tbody>
@@ -574,7 +803,7 @@ function ModerationPage() {
             Object.entries(payload.field_values).map(([key, value]) => (
               <tr key={`fv-${key}`}>
                 <td className="mod-payload-key mod-payload-field">{key}</td>
-                <td className="mod-payload-val">{String(value)}</td>
+                <td className="mod-payload-val">{renderFieldValue(key, value)}</td>
               </tr>
             ))
           }
@@ -674,6 +903,9 @@ function ModerationPage() {
                 onClick={() => setActiveTab('contributions')}
               >
                 Contributions
+                {contributions.length > 0 && (
+                  <span className="mod-tab-badge">{contributions.length}</span>
+                )}
               </button>
               <button
                 className={`mod-tab ${activeTab === 'venues' ? 'mod-tab-active' : ''}`}

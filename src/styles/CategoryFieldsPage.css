@@ -176,3 +176,230 @@
   padding-top: 20px;
   border-top: 1px solid var(--border);
 }
+
+/* Choice Field Styles */
+.field-choices-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.field-choices-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.field-choices-header h4 {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.field-choices-hint {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background: var(--bg-light);
+  border-radius: 6px;
+}
+
+.field-choices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-choice-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: var(--bg-light);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.field-choice-order {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.field-choice-move {
+  width: 24px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.field-choice-move:hover:not(:disabled) {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.field-choice-move:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.field-choice-value {
+  flex: 1;
+  min-width: 120px;
+}
+
+.field-choice-label {
+  flex: 1.5;
+  min-width: 150px;
+}
+
+.field-choice-icon {
+  width: 100px;
+}
+
+.field-choice-row input {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.field-choice-row input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.field-choice-row input:disabled {
+  background: var(--bg-light);
+  color: var(--text-light);
+}
+
+.field-choice-remove {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--danger, #dc3545);
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 4px;
+}
+
+.field-choice-remove:hover {
+  background: rgba(220, 53, 69, 0.1);
+}
+
+.field-choice-remove:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.field-btn-add-choice {
+  padding: 6px 12px;
+  background: var(--bg);
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  color: var(--primary);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.field-btn-add-choice:hover {
+  border-color: var(--primary);
+  background: rgba(var(--primary-rgb), 0.05);
+}
+
+.field-choices-note {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.field-choices-note strong {
+  color: var(--text);
+}
+
+.field-modal-large {
+  max-width: 700px;
+  width: 95%;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.field-type-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  background: var(--bg-light);
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.field-choices-count {
+  margin-left: 6px;
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+.field-btn-choices {
+  padding: 4px 8px;
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.field-btn-choices:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* CategoryFieldsPage.css - Eklemeler */
+
+.page-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.field-error {
+  color: #c00;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+/* Choice field hint for type */
+.field-choices-section h4 {
+  font-family: 'Linux Libertine', serif;
+  font-weight: normal;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .field-choice-row {
+    flex-wrap: wrap;
+  }
+  
+  .field-choice-order {
+    flex-direction: row;
+  }
+  
+  .field-choice-value,
+  .field-choice-label {
+    min-width: 100%;
+    flex: none;
+  }
+  
+  .field-choice-icon {
+    flex: 1;
+  }
+}

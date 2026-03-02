@@ -1,261 +1,535 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import api from '../api/client'
-import '../styles/ContributePage.css'
+import '../styles/EditVenuePage.css'
 
 function EditVenuePage() {
-  const { categorySlug, venueSlug } = useParams()
+  const { venueSlug } = useParams()
   const navigate = useNavigate()
   const token = localStorage.getItem('access')
 
   const [venue, setVenue] = useState(null)
-  const [fieldDefs, setFieldDefs] = useState([])
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
 
-  const [form, setForm] = useState({
-    name: '', city: '', country: '', address: '',
-    latitude: '', longitude: '', map_url: '',
+  // Temel bilgi formu
+  const [basicForm, setBasicForm] = useState({
+    name: '', city: '', country: '', latitude: '', longitude: '',
   })
-  const [activeFields, setActiveFields] = useState({})
+  const [basicSaving, setBasicSaving] = useState(false)
+  const [basicSuccess, setBasicSuccess] = useState(false)
+  const [basicError, setBasicError] = useState('')
 
-  useEffect(function () {
-    if (!token) { navigate('/login'); return }
+  // Kategori alanları
+  const [categorySections, setCategorySections] = useState([])
 
-    api.get('/venues/' + venueSlug + '/').then(function (res) {
+  const fetchVenue = useCallback(async () => {
+    if (!token) { 
+      navigate('/login')
+      return 
+    }
+
+    try {
+      const res = await api.get(`/venues/${venueSlug}/`)
       const v = res.data
       setVenue(v)
-      setForm({
+      
+      setBasicForm({
         name: v.name || '',
         city: v.city || '',
         country: v.country || '',
-        address: v.address || '',
         latitude: v.latitude || '',
         longitude: v.longitude || '',
-        map_url: v.map_url || '',
       })
-      const fv = {}
-      if (v.field_values) {
-        v.field_values.forEach(function (f) { fv[f.field_name] = f.value })
+
+      const sections = []
+      for (const cat of (v.categories || [])) {
+        try {
+          const catRes = await api.get(`/categories/${cat.category_slug}/`)
+          const fieldDefs = catRes.data.field_definitions || []
+          
+          const fieldValues = {}
+          cat.field_values?.forEach(fv => {
+            fieldValues[fv.field_name] = fv.value
+          })
+
+          sections.push({
+            slug: cat.category_slug,
+            name: cat.category_name,
+            fieldDefs,
+            fieldValues,
+            originalValues: { ...fieldValues },
+            saving: false,
+            success: false,
+            error: '',
+          })
+        } catch (err) {
+          console.error(`Failed to load category ${cat.category_slug}:`, err)
+        }
       }
-      setActiveFields(fv)
-      if (v.category_slug) {
-        api.get('/categories/' + v.category_slug + '/').then(function (res2) {
-          setFieldDefs(res2.data.field_definitions || [])
-        })
-      }
+      setCategorySections(sections)
       setLoading(false)
-    }).catch(function () { setLoading(false) })
-  }, [venueSlug])
+    } catch (err) {
+      console.error('Failed to load venue:', err)
+      setError('Could not load venue.')
+      setLoading(false)
+    }
+  }, [venueSlug, token, navigate])
 
-  function handleChange(e) {
+  useEffect(() => { fetchVenue() }, [fetchVenue])
+
+  const handleBasicChange = (e) => {
     const { name, value } = e.target
-    setForm(function (prev) { return Object.assign({}, prev, { [name]: value }) })
+    setBasicForm(prev => ({ ...prev, [name]: value }))
+    setBasicSuccess(false)
   }
 
-  function handleFieldValue(fieldName, value) {
-    setActiveFields(function (prev) { return Object.assign({}, prev, { [fieldName]: value }) })
+  // Backend'den gelen karmaşık hataları düzgün string'e çeviren yardımcı fonksiyon
+  const formatError = (err) => {
+    if (err.response?.data) {
+      if (typeof err.response.data.detail === 'string') return err.response.data.detail;
+      // Eğer { name: ["Zorunlu alan"] } gibi bir obje geliyorsa
+      return JSON.stringify(err.response.data).replace(/["{}\[\]]/g, ' ');
+    }
+    return 'Could not save changes. Please try again.';
   }
 
-  function handleFieldAdd(def) {
-    setActiveFields(function (prev) { return Object.assign({}, prev, { [def.name]: '' }) })
-  }
-
-  function handleFieldRemove(fieldName) {
-    setActiveFields(function (prev) {
-      const next = Object.assign({}, prev)
-      delete next[fieldName]
-      return next
-    })
-  }
-
-  function handleSubmit(e) {
+  // Temel bilgileri gönder
+  const handleBasicSubmit = async (e) => {
     e.preventDefault()
-    setSaving(true)
-    setError('')
-    api.post(
-      '/contributions/venue/' + venue.id + '/edit/',
-      {
-        name: form.name,
-        city: form.city,
-        country: form.country,
-        address: form.address,
-        latitude: form.latitude,
-        longitude: form.longitude,
-        map_url: form.map_url,
-        field_values: activeFields,
-      },
-      { headers: { Authorization: 'Bearer ' + token } }
-    ).then(function () {
-      setSuccess(true)
-      setSaving(false)
-    }).catch(function (err) {
-      setError(JSON.stringify(err.response ? err.response.data : 'Error.'))
-      setSaving(false)
-    })
+    setBasicSaving(true)
+    setBasicError('')
+    setBasicSuccess(false)
+
+    const firstCat = categorySections[0]?.slug || ''
+
+    try {
+      await api.post(
+        `/contributions/venue/${venue.id}/edit/`,
+        {
+          name: basicForm.name,
+          city: basicForm.city,
+          country: basicForm.country,
+          latitude: basicForm.latitude,
+          longitude: basicForm.longitude,
+          category: firstCat,
+          field_values: {},
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      setBasicSuccess(true)
+    } catch (err) {
+      console.error("Submit Basic Error:", err)
+      setBasicError(formatError(err))
+    } finally {
+      setBasicSaving(false)
+    }
   }
 
-  function renderFieldInput(fieldName, fieldDef) {
-    const value = activeFields[fieldName] || ''
-    const type = fieldDef ? fieldDef.field_type : 'string'
-    if (type === 'boolean') return (
-      <select className="filter-select" value={value}
-        onChange={function (e) { handleFieldValue(fieldName, e.target.value) }}>
-        <option value="">Select...</option>
-        <option value="true">Yes</option>
-        <option value="false">No</option>
-      </select>
-    )
-    if (type === 'text') return (
-      <textarea className="report-textarea" value={value}
-        onChange={function (e) { handleFieldValue(fieldName, e.target.value) }} />
-    )
-    if (type === 'integer' || type === 'decimal') return (
-      <input type="number" value={value}
-        onChange={function (e) { handleFieldValue(fieldName, e.target.value) }} />
-    )
-    if (type === 'url') return (
-      <input type="url" value={value} placeholder="https://"
-        onChange={function (e) { handleFieldValue(fieldName, e.target.value) }} />
-    )
-    return (
-      <input type="text" value={value}
-        onChange={function (e) { handleFieldValue(fieldName, e.target.value) }} />
-    )
+  const handleCategoryFieldChange = (catSlug, fieldName, value) => {
+    setCategorySections(prev => prev.map(sec => {
+      if (sec.slug !== catSlug) return sec
+      return {
+        ...sec,
+        fieldValues: { ...sec.fieldValues, [fieldName]: value },
+        success: false,
+      }
+    }))
   }
 
-  const availableToAdd = fieldDefs.filter(function (def) {
-    return !activeFields.hasOwnProperty(def.name)
-  })
+  const handleAddField = (catSlug, fieldDef) => {
+    setCategorySections(prev => prev.map(sec => {
+      if (sec.slug !== catSlug) return sec
+      return {
+        ...sec,
+        fieldValues: { ...sec.fieldValues, [fieldDef.name]: '' },
+        success: false,
+      }
+    }))
+  }
 
-  if (loading) return <div><Navbar /><div className="venue-loading">Loading...</div></div>
+  const handleRemoveField = (catSlug, fieldName) => {
+    setCategorySections(prev => prev.map(sec => {
+      if (sec.slug !== catSlug) return sec
+      const newValues = { ...sec.fieldValues }
+      delete newValues[fieldName]
+      return {
+        ...sec,
+        fieldValues: newValues,
+        success: false,
+      }
+    }))
+  }
 
-  if (success) return (
-    <div>
-      <Navbar />
-      <main className="contribute-main">
-        <div className="contribute-box">
-          <h1>Thank you!</h1>
-          <p>Your edit has been submitted and is pending review by a moderator.</p>
-          <div className="contribute-actions">
-            <Link to={`/venue/${categorySlug}/${venueSlug}`} className="auth-btn">Back to Venue</Link>
-          </div>
+  // Kategori bilgilerini gönder
+  const handleCategorySubmit = async (catSlug) => {
+    const section = categorySections.find(s => s.slug === catSlug)
+    if (!section) return
+
+    setCategorySections(prev => prev.map(sec => 
+      sec.slug === catSlug ? { ...sec, saving: true, error: '', success: false } : sec
+    ))
+
+    try {
+      await api.post(
+        `/contributions/venue/${venue.id}/edit/`,
+        {
+          name: basicForm.name, // Orijinal venue.name yerine formdaki son halini alıyoruz
+          city: basicForm.city,
+          country: basicForm.country,
+          latitude: basicForm.latitude,
+          longitude: basicForm.longitude,
+          category: catSlug,
+          field_values: section.fieldValues,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+
+      setCategorySections(prev => prev.map(sec => 
+        sec.slug === catSlug 
+          ? { ...sec, saving: false, success: true, originalValues: { ...sec.fieldValues } } 
+          : sec
+      ))
+    } catch (err) {
+      console.error("Submit Category Error:", err)
+      setCategorySections(prev => prev.map(sec => 
+        sec.slug === catSlug 
+          ? { ...sec, saving: false, error: formatError(err) } 
+          : sec
+      ))
+    }
+  }
+
+  // Alanın tipine göre uygun input render etme
+  const renderFieldInput = (fieldDef, value, onChange) => {
+    const type = fieldDef?.field_type || 'string'
+    
+    // YENİ EKLENEN DROPDOWN DESTEĞİ
+    if (type === 'dropdown') {
+      // Backend'den virgülle ayrılmış gelen string'i diziye çeviriyoruz
+      const choices = fieldDef.choices ? fieldDef.choices.split(',').map(c => c.trim()) : []
+      return (
+        <select 
+          className="field-input"
+          value={value || ''}
+          onChange={e => onChange(e.target.value)}
+        >
+          <option value="">Select an option...</option>
+          {choices.map(c => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+      )
+    }
+    
+    if (type === 'boolean') {
+      return (
+        <div className="field-boolean-group">
+          <label className={`field-boolean-option ${value === 'true' ? 'selected' : ''}`}>
+            <input
+              type="radio"
+              name={`field-${fieldDef.name}`}
+              checked={value === 'true'}
+              onChange={() => onChange('true')}
+            />
+            <span className="bool-label yes">Yes</span>
+          </label>
+          <label className={`field-boolean-option ${value === 'false' ? 'selected' : ''}`}>
+            <input
+              type="radio"
+              name={`field-${fieldDef.name}`}
+              checked={value === 'false'}
+              onChange={() => onChange('false')}
+            />
+            <span className="bool-label no">No</span>
+          </label>
+          <label className={`field-boolean-option ${value === '' || value === undefined ? 'selected' : ''}`}>
+            <input
+              type="radio"
+              name={`field-${fieldDef.name}`}
+              checked={value === '' || value === undefined}
+              onChange={() => onChange('')}
+            />
+            <span className="bool-label unknown">Unknown</span>
+          </label>
         </div>
-      </main>
-    </div>
-  )
+      )
+    }
+    
+    if (type === 'text') {
+      return (
+        <textarea 
+          className="field-textarea" 
+          value={value || ''}
+          onChange={e => onChange(e.target.value)} 
+        />
+      )
+    }
+    
+    if (type === 'integer' || type === 'decimal' || type === 'number') {
+      return (
+        <input 
+          type="number" 
+          className="field-input"
+          value={value || ''}
+          onChange={e => onChange(e.target.value)} 
+        />
+      )
+    }
+    
+    if (type === 'url') {
+      return (
+        <input 
+          type="url" 
+          className="field-input"
+          value={value || ''} 
+          placeholder="https://..."
+          onChange={e => onChange(e.target.value)} 
+        />
+      )
+    }
+    
+    return (
+      <input 
+        type="text" 
+        className="field-input"
+        value={value || ''}
+        onChange={e => onChange(e.target.value)} 
+      />
+    )
+  }
+
+  if (loading) {
+    return (
+      <div>
+        <Navbar />
+        <div className="venue-loading">Loading…</div>
+      </div>
+    )
+  }
+
+  if (error || !venue) {
+    return (
+      <div>
+        <Navbar />
+        <div className="venue-loading">
+          <h2>Error</h2>
+          <p>{error || 'Venue not found.'}</p>
+          <Link to="/" className="btn-secondary">Back to Home</Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>
       <Navbar />
-      <main className="contribute-main">
-        <div className="contribute-box">
-          <div className="venue-breadcrumb">
-            <Link to={`/venue/${categorySlug}/${venueSlug}`}>← Back to {venue?.name}</Link>
-          </div>
+      <main className="edit-venue-page">
+        <div className="edit-venue-box">
+          <nav className="venue-breadcrumb">
+            <Link to="/">Mapedia</Link>
+            <span className="venue-breadcrumb-sep">›</span>
+            <Link to={`/venue/${venueSlug}`}>{venue.name}</Link>
+            <span className="venue-breadcrumb-sep">›</span>
+            <span>Edit</span>
+          </nav>
 
-          <h1 className="contribute-title">Edit Venue</h1>
-          <p className="contribute-desc">
-            Your changes will be reviewed by a moderator before being published.
+          <h1 className="edit-venue-title">Edit {venue.name}</h1>
+          <p className="edit-venue-desc">
+            Changes will be reviewed by a moderator before being published.
           </p>
 
-          {error && <div className="auth-error">{error}</div>}
+          {/* BASIC INFORMATION SECTION */}
+          <section className="edit-section">
+            <h2 className="edit-section-title">Basic Information</h2>
+            <p className="edit-section-desc">
+              General information about this venue.
+            </p>
 
-          <form onSubmit={handleSubmit} className="contribute-form">
-            <h2>Basic Information</h2>
-            <div className="auth-field">
-              <label>Venue Name *</label>
-              <input type="text" name="name" value={form.name} onChange={handleChange} required />
-            </div>
-            <div className="form-row">
-              <div className="auth-field">
-                <label>City</label>
-                <input type="text" name="city" value={form.city} onChange={handleChange} />
+            <form onSubmit={handleBasicSubmit} className="edit-form">
+              <div className="edit-field">
+                <label>Venue Name <span className="required">*</span></label>
+                <input 
+                  type="text" 
+                  name="name" 
+                  value={basicForm.name} 
+                  onChange={handleBasicChange} 
+                  required 
+                  className="field-input"
+                />
               </div>
-              <div className="auth-field">
-                <label>Country</label>
-                <input type="text" name="country" value={form.country} onChange={handleChange} />
-              </div>
-            </div>
-            <div className="auth-field">
-              <label>Address</label>
-              <input type="text" name="address" value={form.address} onChange={handleChange} />
-            </div>
 
-            <h2>Location</h2>
-            <div className="auth-field">
-              <label>Map URL</label>
-              <input
-                type="url"
-                name="map_url"
-                value={form.map_url}
-                onChange={handleChange}
-                placeholder="https://maps.google.com/..."
-              />
-            </div>
-            <div className="form-row">
-              <div className="auth-field">
-                <label>Latitude</label>
-                <input type="text" name="latitude" value={form.latitude} onChange={handleChange} />
+              <div className="edit-field-row">
+                <div className="edit-field">
+                  <label>City</label>
+                  <input 
+                    type="text" 
+                    name="city" 
+                    value={basicForm.city} 
+                    onChange={handleBasicChange}
+                    className="field-input"
+                  />
+                </div>
+                <div className="edit-field">
+                  <label>Country</label>
+                  <input 
+                    type="text" 
+                    name="country" 
+                    value={basicForm.country} 
+                    onChange={handleBasicChange}
+                    className="field-input"
+                  />
+                </div>
               </div>
-              <div className="auth-field">
-                <label>Longitude</label>
-                <input type="text" name="longitude" value={form.longitude} onChange={handleChange} />
-              </div>
-            </div>
 
-            {fieldDefs.length > 0 && (
-              <div className="contribute-fields">
-                <h2>Details</h2>
-                {Object.keys(activeFields).length === 0 && (
-                  <p className="contribute-desc" style={{ marginBottom: '0.75rem' }}>
-                    No fields added yet.
+              <div className="edit-field-row">
+                <div className="edit-field">
+                  <label>Latitude</label>
+                  <input 
+                    type="text" 
+                    name="latitude" 
+                    value={basicForm.latitude} 
+                    onChange={handleBasicChange}
+                    className="field-input"
+                    placeholder="e.g. 41.0082"
+                  />
+                </div>
+                <div className="edit-field">
+                  <label>Longitude</label>
+                  <input 
+                    type="text" 
+                    name="longitude" 
+                    value={basicForm.longitude} 
+                    onChange={handleBasicChange}
+                    className="field-input"
+                    placeholder="e.g. 28.9784"
+                  />
+                </div>
+              </div>
+
+              {basicError && <p className="edit-error">{basicError}</p>}
+              {basicSuccess && <p className="edit-success">✓ Changes submitted for review.</p>}
+
+              <div className="edit-actions">
+                <button type="submit" className="btn-primary" disabled={basicSaving}>
+                  {basicSaving ? 'Saving…' : 'Save Basic Info'}
+                </button>
+              </div>
+            </form>
+          </section>
+
+          {/* CATEGORY-SPECIFIC FIELDS SECTION */}
+          {categorySections.map(section => {
+            const availableFields = section.fieldDefs.filter(
+              def => !section.fieldValues.hasOwnProperty(def.name)
+            )
+            
+            return (
+              <section key={section.slug} className="edit-section">
+                <h2 className="edit-section-title">
+                  <Link to={`/category/${section.slug}`} className="category-link">
+                    {section.name}
+                  </Link>
+                </h2>
+                <p className="edit-section-desc">
+                  Fields specific to the {section.name} category.
+                </p>
+
+                {section.fieldDefs.length === 0 ? (
+                  <p className="no-fields-message">
+                    This category doesn't have any custom fields.
                   </p>
-                )}
-                {Object.keys(activeFields).map(function (fieldName) {
-                  const def = fieldDefs.find(function (d) { return d.name === fieldName })
-                  const label = def ? def.label : fieldName
-                  const helpText = def ? def.help_text : ''
-                  const isRequired = def ? def.is_required : false
-                  return (
-                    <div key={fieldName} className="auth-field">
-                      <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span>{label}{isRequired && <span style={{ color: '#e53e3e' }}> *</span>}</span>
-                        <button type="button" onClick={function () { handleFieldRemove(fieldName) }}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#e53e3e', fontSize: '0.8rem', fontWeight: 600 }}>
-                          ✕ Remove
-                        </button>
-                      </label>
-                      {helpText && <small style={{ color: '#718096', marginBottom: '4px', display: 'block' }}>{helpText}</small>}
-                      {renderFieldInput(fieldName, def)}
-                    </div>
-                  )
-                })}
-                {availableToAdd.length > 0 && (
-                  <div style={{ marginTop: '1.5rem' }}>
-                    <h3 style={{ fontSize: '1rem', marginBottom: '0.75rem', color: '#4a5568' }}>Add Fields</h3>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                      {availableToAdd.map(function (def) {
-                        return (
-                          <button key={def.id} type="button" onClick={function () { handleFieldAdd(def) }}
-                            style={{ padding: '0.35rem 0.85rem', borderRadius: '999px', border: '1.5px solid #667eea', background: 'white', color: '#667eea', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 500 }}>
-                            + {def.label}
-                          </button>
-                        )
-                      })}
+                ) : (
+                  <div className="edit-form">
+                    {/* Active fields */}
+                    {Object.keys(section.fieldValues).map(fieldName => {
+                      const def = section.fieldDefs.find(d => d.name === fieldName)
+                      if (!def) return null
+                      
+                      return (
+                        <div key={fieldName} className="edit-field">
+                          <label className="field-label-with-remove">
+                            <span>
+                              {def.label}
+                              {def.is_required && <span className="required">*</span>}
+                            </span>
+                            <button 
+                              type="button" 
+                              className="btn-remove-field"
+                              onClick={() => handleRemoveField(section.slug, fieldName)}
+                            >
+                              ✕ Remove
+                            </button>
+                          </label>
+                          {def.help_text && (
+                            <small className="field-help">{def.help_text}</small>
+                          )}
+                          {renderFieldInput(
+                            def, 
+                            section.fieldValues[fieldName],
+                            (value) => handleCategoryFieldChange(section.slug, fieldName, value)
+                          )}
+                        </div>
+                      )
+                    })}
+
+                    {/* Add more fields */}
+                    {availableFields.length > 0 && (
+                      <div className="add-fields-section">
+                        <p className="add-fields-label">Add more fields:</p>
+                        <div className="add-fields-buttons">
+                          {availableFields.map(def => (
+                            <button 
+                              key={def.name} 
+                              type="button" 
+                              className="btn-add-field"
+                              onClick={() => handleAddField(section.slug, def)}
+                            >
+                              + {def.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {section.error && <p className="edit-error">{section.error}</p>}
+                    {section.success && <p className="edit-success">✓ Changes submitted for review.</p>}
+
+                    <div className="edit-actions">
+                      <button 
+                        type="button" 
+                        className="btn-primary"
+                        disabled={section.saving}
+                        onClick={() => handleCategorySubmit(section.slug)}
+                      >
+                        {section.saving ? 'Saving…' : `Save ${section.name} Fields`}
+                      </button>
                     </div>
                   </div>
                 )}
-              </div>
-            )}
+              </section>
+            )
+          })}
 
-            <button type="submit" className="auth-btn" disabled={saving}>
-              {saving ? 'Submitting...' : 'Submit Edit'}
+          <section className="edit-section add-category-section">
+            <h2 className="edit-section-title">Add to Another Category</h2>
+            <p className="edit-section-desc">
+              This venue can belong to multiple categories. Add it to another category to make it more discoverable.
+            </p>
+            <button 
+              className="btn-secondary"
+              onClick={() => navigate(`/venue/${venueSlug}/add-category`)}
+            >
+              + Add Category
             </button>
-          </form>
+          </section>
+
+          <div className="edit-footer">
+            <Link to={`/venue/${venueSlug}`} className="btn-back">
+              ← Back to {venue.name}
+            </Link>
+          </div>
         </div>
       </main>
     </div>

@@ -1,0 +1,396 @@
+/* ══════════════════════════════════════════════════════════════════
+   EditVenuePage Styles - Mapedia Wiki Style
+   ══════════════════════════════════════════════════════════════════ */
+
+.edit-venue-page {
+  max-width: 720px;
+  margin: 48px auto;
+  padding: 0 16px;
+}
+
+.edit-venue-box {
+  border: 1px solid var(--border);
+  padding: 32px;
+  background: white;
+}
+
+.edit-venue-title {
+  font-family: 'Linux Libertine', Georgia, serif;
+  font-size: 28px;
+  font-weight: normal;
+  margin: 0 0 8px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.edit-venue-desc {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 24px;
+}
+
+/* ── BREADCRUMB ───────────────────────────────────────────────────── */
+.edit-venue-box .venue-breadcrumb {
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.edit-venue-box .venue-breadcrumb a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+.edit-venue-box .venue-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.edit-venue-box .venue-breadcrumb-sep {
+  margin: 0 6px;
+  color: var(--text-light);
+}
+
+/* ── SECTIONS ─────────────────────────────────────────────────────── */
+.edit-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.edit-section:first-of-type {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.edit-section-title {
+  font-family: 'Linux Libertine', Georgia, serif;
+  font-size: 20px;
+  font-weight: normal;
+  margin: 0 0 6px 0;
+  color: var(--text);
+}
+
+.edit-section-title .category-link {
+  color: var(--link);
+  text-decoration: none;
+}
+
+.edit-section-title .category-link:hover {
+  text-decoration: underline;
+}
+
+.edit-section-desc {
+  font-size: 13px;
+  color: var(--text-light);
+  margin: 0 0 16px 0;
+}
+
+/* ── FORM ─────────────────────────────────────────────────────────── */
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.edit-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.edit-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.field-label-with-remove {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-remove-field {
+  background: none;
+  border: none;
+  color: #d33;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.btn-remove-field:hover {
+  background: #fee7e6;
+}
+
+.field-help {
+  display: block;
+  font-size: 12px;
+  color: var(--text-light);
+  margin-bottom: 2px;
+}
+
+.required {
+  color: #d33;
+  margin-left: 2px;
+}
+
+/* ── INPUTS ───────────────────────────────────────────────────────── */
+.field-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.field-input:focus {
+  border-color: var(--link);
+}
+
+.field-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+  outline: none;
+  min-height: 80px;
+  resize: vertical;
+  transition: border-color 0.15s;
+}
+
+.field-textarea:focus {
+  border-color: var(--link);
+}
+
+/* ── BOOLEAN FIELD ────────────────────────────────────────────────── */
+.field-boolean-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.field-boolean-option {
+  cursor: pointer;
+}
+
+.field-boolean-option input {
+  display: none;
+}
+
+.bool-label {
+  display: inline-block;
+  padding: 6px 16px;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  background: white;
+  transition: all 0.12s;
+}
+
+.bool-label.yes {
+  color: #14866d;
+}
+
+.bool-label.no {
+  color: #d33;
+}
+
+.bool-label.unknown {
+  color: var(--text-light);
+}
+
+.field-boolean-option.selected .bool-label.yes {
+  background: #d5fdf4;
+  border-color: #14866d;
+}
+
+.field-boolean-option.selected .bool-label.no {
+  background: #fee7e6;
+  border-color: #d33;
+}
+
+.field-boolean-option.selected .bool-label.unknown {
+  background: #eaecf0;
+  border-color: #72777d;
+}
+
+.field-boolean-option:hover .bool-label {
+  background: #f8f9fa;
+}
+
+/* ── ADD FIELDS ───────────────────────────────────────────────────── */
+.add-fields-section {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+
+.add-fields-label {
+  font-size: 12px;
+  color: var(--text-light);
+  margin: 0 0 8px 0;
+}
+
+.add-fields-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-add-field {
+  padding: 4px 12px;
+  border: 1px solid var(--link);
+  background: white;
+  color: var(--link);
+  font-size: 12.5px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.btn-add-field:hover {
+  background: #f0f4ff;
+}
+
+/* ── MESSAGES ─────────────────────────────────────────────────────── */
+.edit-error {
+  color: #d33;
+  background: #fee7e6;
+  padding: 10px 14px;
+  border: 1px solid #d33;
+  font-size: 13px;
+  margin: 8px 0;
+}
+
+.edit-success {
+  color: #14866d;
+  background: #d5fdf4;
+  padding: 10px 14px;
+  border: 1px solid #14866d;
+  font-size: 13px;
+  margin: 8px 0;
+}
+
+.no-fields-message {
+  font-size: 13px;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+/* ── ACTIONS ──────────────────────────────────────────────────────── */
+.edit-actions {
+  margin-top: 8px;
+}
+
+.btn-primary {
+  padding: 8px 20px;
+  background: var(--link);
+  color: white;
+  border: 1px solid var(--link);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #2a4b8d;
+  border-color: #2a4b8d;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  padding: 8px 20px;
+  background: white;
+  color: var(--link);
+  border: 1px solid var(--link);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.btn-secondary:hover {
+  background: #f0f4ff;
+}
+
+/* ── ADD CATEGORY SECTION ─────────────────────────────────────────── */
+.add-category-section {
+  background: #f8f9fa;
+  margin-left: -32px;
+  margin-right: -32px;
+  padding-left: 32px;
+  padding-right: 32px;
+  padding-bottom: 24px;
+}
+
+/* ── FOOTER ───────────────────────────────────────────────────────── */
+.edit-footer {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.btn-back {
+  color: var(--link);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.btn-back:hover {
+  text-decoration: underline;
+}
+
+/* ── MOBILE ───────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .edit-venue-page {
+    margin: 24px auto;
+    padding: 0 12px;
+  }
+  
+  .edit-venue-box {
+    padding: 20px 16px;
+  }
+  
+  .edit-venue-title {
+    font-size: 22px;
+  }
+  
+  .edit-field-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .field-boolean-group {
+    flex-direction: column;
+  }
+  
+  .bool-label {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 10px 16px;
+  }
+  
+  .add-category-section {
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}

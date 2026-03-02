@@ -1,3 +1,7 @@
+/* ══════════════════════════════════════════════════════════════════
+   ContributePage Styles - Mapedia Wiki Style
+   ══════════════════════════════════════════════════════════════════ */
+
 .contribute-main {
   max-width: 680px;
   margin: 48px auto;
@@ -11,10 +15,10 @@
 }
 
 .contribute-title {
-  font-family: 'Linux Libertine', serif;
+  font-family: 'Linux Libertine', Georgia, serif;
   font-size: 28px;
   font-weight: normal;
-  margin-bottom: 8px;
+  margin: 0 0 8px 0;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--border);
 }
@@ -25,6 +29,11 @@
   margin-bottom: 24px;
 }
 
+.contribute-desc a {
+  color: var(--link);
+}
+
+/* ── FORM ─────────────────────────────────────────────────────────── */
 .contribute-form {
   display: flex;
   flex-direction: column;
@@ -32,17 +41,18 @@
 }
 
 .contribute-form h2 {
-  font-family: 'Linux Libertine', serif;
+  font-family: 'Linux Libertine', Georgia, serif;
   font-size: 20px;
   font-weight: normal;
   border-bottom: 1px solid var(--border);
   padding-bottom: 6px;
-  margin-top: 8px;
+  margin: 8px 0 0 0;
 }
 
 .contribute-hint {
   font-size: 12px;
   color: var(--text-light);
+  margin: 0;
 }
 
 .form-row {
@@ -51,12 +61,239 @@
   gap: 16px;
 }
 
+/* ── AUTH FIELD (reused from auth pages) ──────────────────────────── */
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.required {
+  color: #d33;
+  margin-left: 2px;
+}
+
+/* ── INPUTS ───────────────────────────────────────────────────────── */
+.field-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.field-input:focus {
+  border-color: var(--link);
+}
+
+.field-input:disabled,
+.input-selected {
+  background-color: #f8f9fa;
+  color: var(--text);
+  cursor: not-allowed;
+}
+
+.field-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+  outline: none;
+  min-height: 80px;
+  resize: vertical;
+  transition: border-color 0.15s;
+}
+
+.field-textarea:focus {
+  border-color: var(--link);
+}
+
+.field-help {
+  display: block;
+  font-size: 12px;
+  color: var(--text-light);
+  margin-bottom: 2px;
+}
+
+/* ── CATEGORY SEARCH ──────────────────────────────────────────────── */
+.category-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.category-search-wrap input {
+  width: 100%;
+  padding: 8px 12px;
+  padding-right: 32px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.category-search-wrap input:focus {
+  border-color: var(--link);
+}
+
+.category-clear-btn {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--text-light);
+  line-height: 1;
+  padding: 2px 4px;
+}
+
+.category-clear-btn:hover {
+  color: #d33;
+}
+
+.category-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: white;
+  border: 1px solid var(--border);
+  border-top: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.category-suggestion-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0ec;
+}
+
+.category-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.category-suggestion-item:hover {
+  background: #f8f9fa;
+}
+
+.suggestion-name {
+  color: var(--link);
+}
+
+.suggestion-count {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.category-no-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: white;
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--text-light);
+  margin: 0;
+}
+
+/* ── BOOLEAN FIELD ────────────────────────────────────────────────── */
+.field-boolean-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.field-boolean-option {
+  cursor: pointer;
+}
+
+.field-boolean-option input {
+  display: none;
+}
+
+.bool-label {
+  display: inline-block;
+  padding: 6px 16px;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  background: white;
+  transition: all 0.12s;
+}
+
+.bool-label.yes {
+  color: #14866d;
+}
+
+.bool-label.no {
+  color: #d33;
+}
+
+.bool-label.unknown {
+  color: var(--text-light);
+}
+
+.field-boolean-option.selected .bool-label.yes {
+  background: #d5fdf4;
+  border-color: #14866d;
+}
+
+.field-boolean-option.selected .bool-label.no {
+  background: #fee7e6;
+  border-color: #d33;
+}
+
+.field-boolean-option.selected .bool-label.unknown {
+  background: #eaecf0;
+  border-color: #72777d;
+}
+
+.field-boolean-option:hover .bool-label {
+  background: #f8f9fa;
+}
+
+/* ── CONTRIBUTE FIELDS ────────────────────────────────────────────── */
 .contribute-fields {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
+.no-fields-hint {
+  font-size: 13px;
+  color: var(--text-light);
+  font-style: italic;
+  margin: 8px 0;
+}
+
+/* ── ACTIONS ──────────────────────────────────────────────────────── */
 .contribute-actions {
   display: flex;
   gap: 12px;
@@ -64,17 +301,581 @@
   flex-wrap: wrap;
 }
 
+.btn-primary {
+  padding: 8px 20px;
+  background: var(--link);
+  color: white;
+  border: 1px solid var(--link);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #2a4b8d;
+  border-color: #2a4b8d;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  padding: 8px 20px;
+  background: white;
+  color: var(--link);
+  border: 1px solid var(--link);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.btn-secondary:hover {
+  background: #f0f4ff;
+}
+
+.btn-clear {
+  padding: 8px 20px;
+  background: white;
+  color: var(--text-light);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.btn-clear:hover {
+  background: #f8f9fa;
+  color: var(--text);
+}
+
+/* ── MESSAGES ─────────────────────────────────────────────────────── */
+.contribute-error {
+  color: #d33;
+  background: #fee7e6;
+  padding: 10px 14px;
+  border: 1px solid #d33;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.contribute-footer-hint {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 8px;
+}
+
+/* ── SUCCESS ──────────────────────────────────────────────────────── */
+.success-container {
+  text-align: center;
+  padding: 32px 16px;
+}
+
+.success-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  background: #d5fdf4;
+  color: #14866d;
+  border: 2px solid #14866d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.success-container h2 {
+  font-family: 'Linux Libertine', Georgia, serif;
+  font-size: 24px;
+  font-weight: normal;
+  margin: 0 0 12px 0;
+  color: var(--text);
+}
+
+.success-container p {
+  font-size: 14px;
+  color: var(--text-light);
+  margin: 0 0 24px 0;
+}
+
+.success-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── ADD FIELD BUTTONS ────────────────────────────────────────────── */
+.btn-tag-add {
+  padding: 4px 12px;
+  border: 1px solid var(--link);
+  background: white;
+  color: var(--link);
+  font-size: 12.5px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.btn-tag-add:hover {
+  background: #f0f4ff;
+}
+
+/* ── MOBILE ───────────────────────────────────────────────────────── */
 @media (max-width: 600px) {
+  .contribute-main {
+    margin: 24px auto;
+    padding: 0 12px;
+  }
+  
   .contribute-box {
     padding: 20px 16px;
   }
-
+  
+  .contribute-title {
+    font-size: 22px;
+  }
+  
   .form-row {
     grid-template-columns: 1fr;
     gap: 12px;
   }
-
-  .contribute-title {
-    font-size: 22px;
+  
+  .field-boolean-group {
+    flex-direction: column;
   }
+  
+  .bool-label {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 10px 16px;
+  }
+  
+  .success-actions {
+    flex-direction: column;
+  }
+  
+  .success-actions button,
+  .success-actions a {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ModerationPage Additional Styles - Contribution History
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── MOD HEADER ───────────────────────────────────────────────────── */
+.mod-header {
+  margin-bottom: 24px;
+}
+
+.mod-back-link {
+  color: var(--link);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.mod-back-link:hover {
+  text-decoration: underline;
+}
+
+.mod-title {
+  font-family: 'Linux Libertine', Georgia, serif;
+  font-size: 28px;
+  font-weight: normal;
+  margin: 8px 0 0 0;
+  text-transform: capitalize;
+}
+
+.mod-content-full {
+  background: white;
+  border: 1px solid var(--border);
+  padding: 24px;
+  min-height: 400px;
+}
+
+/* ── TAB CONTENT (Borderless) ─────────────────────────────────────── */
+.mod-tab-content-clean {
+  padding: 24px 0; /* Sadece üstten ve alttan boşluk, yanlarda kutu yok */
+  min-height: 400px;
+}
+
+/* ── CONTRIBUTION HISTORY ─────────────────────────────────────────── */
+.contribution-history {
+  width: 100%;
+}
+
+.contrib-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.contrib-header h3 {
+  font-family: 'Linux Libertine', Georgia, serif;
+  font-size: 20px;
+  font-weight: normal;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.contrib-pending-badge {
+  background: #fee7e6;
+  color: #d33;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-family: sans-serif;
+}
+
+.contrib-filters {
+  display: flex;
+  gap: 4px;
+}
+
+.contrib-filter-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  background: white;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.contrib-filter-btn:hover {
+  background: #f8f9fa;
+}
+
+.contrib-filter-btn.active {
+  background: var(--link);
+  color: white;
+  border-color: var(--link);
+}
+
+/* ── CONTRIBUTION LAYOUT ──────────────────────────────────────────── */
+.contrib-layout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 24px;
+}
+
+@media (max-width: 1000px) {
+  .contrib-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── CONTRIBUTION TABLE ───────────────────────────────────────────── */
+.contrib-list {
+  overflow-x: auto;
+}
+
+.contrib-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.contrib-table th {
+  text-align: left;
+  padding: 10px 12px;
+  background: #f8f9fa;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.contrib-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f0ec;
+  vertical-align: middle;
+}
+
+.contrib-row {
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.contrib-row:hover {
+  background: #f8f9fa;
+}
+
+.contrib-row-selected {
+  background: #f0f4ff !important;
+}
+
+.contrib-row-pending {
+  border-left: 3px solid #fc3;
+}
+
+.contrib-type {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #eaecf0;
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+.contrib-name {
+  font-weight: 500;
+  color: var(--text);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── STATUS BADGES ────────────────────────────────────────────────── */
+.contrib-status {
+  display: inline-block;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.contrib-status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.contrib-status-approved {
+  background: #d5fdf4;
+  color: #14866d;
+}
+
+.contrib-status-rejected {
+  background: #fee7e6;
+  color: #d33;
+}
+
+/* ── CONTRIBUTION DETAIL ──────────────────────────────────────────── */
+.contrib-detail {
+  background: #f8f9fa;
+  border: 1px solid var(--border);
+  padding: 20px;
+  position: sticky;
+  top: 20px;
+}
+
+.contrib-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.contrib-detail-header h4 {
+  font-family: 'Linux Libertine', Georgia, serif;
+  font-size: 18px;
+  font-weight: normal;
+  margin: 0;
+  word-break: break-word;
+}
+
+.contrib-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text-light);
+  padding: 0;
+  line-height: 1;
+}
+
+.contrib-close:hover {
+  color: #d33;
+}
+
+.contrib-detail-meta {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.contrib-type-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  background: #eaecf0;
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+.contrib-detail-info {
+  font-size: 13px;
+  color: var(--text-light);
+  margin: 4px 0;
+}
+
+.contrib-mod-note {
+  background: #fff3cd;
+  padding: 10px 12px;
+  font-size: 13px;
+  margin: 12px 0;
+  border-left: 3px solid #ffc107;
+}
+
+.contrib-payload {
+  margin-top: 16px;
+}
+
+.contrib-payload h5 {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: var(--text-light);
+}
+
+.contrib-location {
+  margin-top: 12px;
+}
+
+.contrib-actions {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.contrib-actions .mod-reject-note {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.contrib-action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── PAYLOAD TABLE ────────────────────────────────────────────────── */
+.mod-payload-table {
+  width: 100%;
+  font-size: 13px;
+  border-collapse: collapse;
+}
+
+.mod-payload-table td {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+
+.mod-payload-key {
+  color: var(--text-light);
+  width: 120px;
+  font-weight: 500;
+}
+
+.mod-payload-val {
+  color: var(--text);
+  word-break: break-word;
+}
+
+.mod-payload-section {
+  font-weight: 600;
+  color: var(--text);
+  padding-top: 12px !important;
+  border-bottom: none !important;
+}
+
+.mod-payload-field {
+  padding-left: 12px;
+  font-style: italic;
+}
+
+/* ── EXISTING STYLES FIXES ────────────────────────────────────────── */
+.mod-main {
+  max-width: 1200px;
+  margin: 48px auto;
+  padding: 0 16px;
+}
+
+.mod-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--border);
+  background: white;
+}
+
+.mod-tab {
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  color: var(--text-light);
+  transition: all 0.12s;
+}
+
+.mod-tab:hover {
+  color: var(--text);
+  background: #f8f9fa;
+}
+
+.mod-tab-active {
+  color: var(--link);
+  border-bottom-color: var(--link);
+}
+
+/* ── PAGINATION ───────────────────────────────────────────────────── */
+.venue-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.venue-page-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  background: white;
+  color: var(--link);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.venue-page-btn:hover:not(:disabled) {
+  background: #f8f9fa;
+  border-color: #c8ccd1;
+  text-decoration: none;
+}
+
+.venue-page-btn:disabled {
+  color: var(--text-light);
+  background: #eaecf0;
+  cursor: not-allowed;
+  border-color: var(--border);
+}
+
+.venue-page-btn-active {
+  background: var(--link) !important;
+  color: white !important;
+  border-color: var(--link) !important;
+  font-weight: bold;
+}
+
+.venue-page-info {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-left: 8px;
+}
+
+.venue-page-dots {
+  color: var(--text-light);
+  padding: 0 4px;
 }

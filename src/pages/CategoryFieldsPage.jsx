@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import api from '../api/client'
-import '../styles/ModerationPage.css'
+import '../styles/CategoryFieldsPage.css'
 
 const FIELD_TYPES = [
   { value: 'boolean', label: 'Boolean (Yes/No)' },
@@ -11,9 +11,13 @@ const FIELD_TYPES = [
   { value: 'integer', label: 'Integer' },
   { value: 'decimal', label: 'Decimal' },
   { value: 'url', label: 'URL' },
+  { value: 'choice', label: 'Single Choice' },
+  { value: 'multi_choice', label: 'Multiple Choice' },
 ]
 
-const EMPTY_FIELD_FORM = {
+const CHOICE_FIELD_TYPES = ['choice', 'multi_choice']
+
+const EMPTY_FIELD = {
   name: '',
   label: '',
   field_type: 'string',
@@ -23,6 +27,8 @@ const EMPTY_FIELD_FORM = {
   order: 0,
 }
 
+const EMPTY_CHOICE = { value: '', label: '', icon: '', order: 0 }
+
 function CategoryFieldsPage() {
   const { slug } = useParams()
   const navigate = useNavigate()
@@ -30,13 +36,18 @@ function CategoryFieldsPage() {
 
   const [fields, setFields] = useState([])
   const [loading, setLoading] = useState(true)
-  const [showForm, setShowForm] = useState(false)
-  const [editingField, setEditingField] = useState(null)
-  const [form, setForm] = useState(EMPTY_FIELD_FORM)
+  const [editingId, setEditingId] = useState(null)
+  const [editForm, setEditForm] = useState(EMPTY_FIELD)
+  const [editChoices, setEditChoices] = useState([])
+  const [showAdd, setShowAdd] = useState(false)
+  const [addForm, setAddForm] = useState(EMPTY_FIELD)
+  const [addChoices, setAddChoices] = useState([{ ...EMPTY_CHOICE }])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  useEffect(() => { loadFields() }, [slug])
+  useEffect(() => {
+    loadFields()
+  }, [slug])
 
   const loadFields = () => {
     setLoading(true)
@@ -48,16 +59,12 @@ function CategoryFieldsPage() {
       .finally(() => setLoading(false))
   }
 
-  const openAddForm = () => {
-    setEditingField(null)
-    setForm(EMPTY_FIELD_FORM)
-    setError('')
-    setShowForm(true)
-  }
-
-  const openEditForm = (field) => {
-    setEditingField(field)
-    setForm({
+  // ─────────────────────────────────────────────────────────────
+  // EDIT
+  // ─────────────────────────────────────────────────────────────
+  const startEdit = (field) => {
+    setEditingId(field.id)
+    setEditForm({
       name: field.name,
       label: field.label,
       field_type: field.field_type,
@@ -66,185 +73,501 @@ function CategoryFieldsPage() {
       help_text: field.help_text || '',
       order: field.order,
     })
+    // Choices varsa yükle
+    if (CHOICE_FIELD_TYPES.includes(field.field_type) && field.choices) {
+      setEditChoices(field.choices.length > 0 
+        ? field.choices.map(c => ({ ...c })) 
+        : [{ ...EMPTY_CHOICE }]
+      )
+    } else {
+      setEditChoices([])
+    }
     setError('')
-    setShowForm(true)
   }
 
-  const closeForm = () => {
-    setShowForm(false)
-    setEditingField(null)
-    setForm(EMPTY_FIELD_FORM)
+  const cancelEdit = () => {
+    setEditingId(null)
+    setEditForm(EMPTY_FIELD)
+    setEditChoices([])
     setError('')
   }
 
-  const handleChange = (e) => {
+  const handleEditChange = (e) => {
     const { name, value, type, checked } = e.target
-    setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
+    setEditForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
   }
 
-  const handleSave = () => {
-    if (!form.name.trim() || !form.label.trim()) {
-      setError('Name and Label are required.')
+  const handleEditChoiceChange = (index, key, value) => {
+    setEditChoices(prev => prev.map((c, i) => i === index ? { ...c, [key]: value } : c))
+  }
+
+  const addEditChoice = () => {
+    setEditChoices(prev => [...prev, { ...EMPTY_CHOICE, order: prev.length }])
+  }
+
+  const removeEditChoice = (index) => {
+    if (editChoices.length <= 1) return
+    setEditChoices(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const moveEditChoice = (index, dir) => {
+    const newIndex = index + dir
+    if (newIndex < 0 || newIndex >= editChoices.length) return
+    const arr = [...editChoices]
+    ;[arr[index], arr[newIndex]] = [arr[newIndex], arr[index]]
+    arr.forEach((c, i) => c.order = i)
+    setEditChoices(arr)
+  }
+
+  const saveEdit = () => {
+    if (!editForm.label.trim()) {
+      setError('Label is required.')
       return
     }
+
+    // Choice validation
+    if (CHOICE_FIELD_TYPES.includes(editForm.field_type)) {
+      const valid = editChoices.filter(c => c.value.trim() && c.label.trim())
+      if (valid.length < 2) {
+        setError('At least 2 options are required.')
+        return
+      }
+    }
+
     setSaving(true)
     setError('')
-    const request = editingField
-      ? api.patch(`/categories/${slug}/fields/${editingField.id}/edit/`, form, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-      : api.post(`/categories/${slug}/fields/add/`, form, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-    request
-      .then(() => { loadFields(); closeForm() })
+
+    const payload = {
+      ...editForm,
+      choices: CHOICE_FIELD_TYPES.includes(editForm.field_type)
+        ? editChoices.filter(c => c.value.trim() && c.label.trim()).map((c, i) => ({ ...c, order: i }))
+        : []
+    }
+
+    api.patch(`/categories/${slug}/fields/${editingId}/edit/`, payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(() => { loadFields(); cancelEdit() })
       .catch(err => {
         const data = err.response?.data
-        setError(data ? Object.values(data).flat().join(' ') : 'Something went wrong.')
+        setError(typeof data === 'string' ? data : JSON.stringify(data) || 'Error')
       })
       .finally(() => setSaving(false))
   }
 
-  const handleDelete = (field) => {
+  const deleteField = (field) => {
     if (!window.confirm(`"${field.label}" alanını silmek istediğinize emin misiniz?`)) return
     api.delete(`/categories/${slug}/fields/${field.id}/delete/`, {
       headers: { Authorization: `Bearer ${token}` }
     }).then(() => loadFields())
   }
 
+  // ─────────────────────────────────────────────────────────────
+  // ADD
+  // ─────────────────────────────────────────────────────────────
+  const openAdd = () => {
+    setShowAdd(true)
+    setAddForm({ ...EMPTY_FIELD, order: fields.length })
+    setAddChoices([{ ...EMPTY_CHOICE }])
+    setError('')
+  }
+
+  const cancelAdd = () => {
+    setShowAdd(false)
+    setAddForm(EMPTY_FIELD)
+    setAddChoices([])
+    setError('')
+  }
+
+  const handleAddChange = (e) => {
+    const { name, value, type, checked } = e.target
+    setAddForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
+
+    // Field type değişince choices'ı başlat/sıfırla
+    if (name === 'field_type') {
+      if (CHOICE_FIELD_TYPES.includes(value)) {
+        setAddChoices([{ ...EMPTY_CHOICE }])
+      } else {
+        setAddChoices([])
+      }
+    }
+  }
+
+  const handleAddChoiceChange = (index, key, value) => {
+    setAddChoices(prev => prev.map((c, i) => i === index ? { ...c, [key]: value } : c))
+  }
+
+  const addAddChoice = () => {
+    setAddChoices(prev => [...prev, { ...EMPTY_CHOICE, order: prev.length }])
+  }
+
+  const removeAddChoice = (index) => {
+    if (addChoices.length <= 1) return
+    setAddChoices(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const moveAddChoice = (index, dir) => {
+    const newIndex = index + dir
+    if (newIndex < 0 || newIndex >= addChoices.length) return
+    const arr = [...addChoices]
+    ;[arr[index], arr[newIndex]] = [arr[newIndex], arr[index]]
+    arr.forEach((c, i) => c.order = i)
+    setAddChoices(arr)
+  }
+
+  const saveAdd = () => {
+    if (!addForm.name.trim() || !addForm.label.trim()) {
+      setError('Name and Label are required.')
+      return
+    }
+
+    // Choice validation
+    if (CHOICE_FIELD_TYPES.includes(addForm.field_type)) {
+      const valid = addChoices.filter(c => c.value.trim() && c.label.trim())
+      if (valid.length < 2) {
+        setError('At least 2 options are required.')
+        return
+      }
+      const values = valid.map(c => c.value.trim().toLowerCase())
+      if (new Set(values).size !== values.length) {
+        setError('Option values must be unique.')
+        return
+      }
+    }
+
+    setSaving(true)
+    setError('')
+
+    const payload = {
+      ...addForm,
+      choices: CHOICE_FIELD_TYPES.includes(addForm.field_type)
+        ? addChoices.filter(c => c.value.trim() && c.label.trim()).map((c, i) => ({ ...c, order: i }))
+        : []
+    }
+
+    api.post(`/categories/${slug}/fields/add/`, payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(() => { loadFields(); cancelAdd() })
+      .catch(err => {
+        const data = err.response?.data
+        setError(typeof data === 'string' ? data : Object.values(data).flat().join(' ') || 'Error')
+      })
+      .finally(() => setSaving(false))
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // RENDER HELPERS
+  // ─────────────────────────────────────────────────────────────
+  const isChoiceField = (type) => CHOICE_FIELD_TYPES.includes(type)
+
+  const renderChoicesEditor = (choices, onChange, onAdd, onRemove, onMove, disabled = false) => (
+    <div className="field-choices-section">
+      <div className="field-choices-header">
+        <h4>Options</h4>
+        <button type="button" className="field-btn-add-choice" onClick={onAdd}>
+          + Add Option
+        </button>
+      </div>
+
+      <div className="field-choices-list">
+        {choices.map((choice, index) => (
+          <div key={index} className="field-choice-row">
+            <div className="field-choice-order">
+              <button
+                type="button"
+                className="field-choice-move"
+                onClick={() => onMove(index, -1)}
+                disabled={index === 0}
+              >↑</button>
+              <button
+                type="button"
+                className="field-choice-move"
+                onClick={() => onMove(index, 1)}
+                disabled={index === choices.length - 1}
+              >↓</button>
+            </div>
+
+            <input
+              type="text"
+              className="field-choice-value field-input"
+              placeholder="value"
+              value={choice.value}
+              onChange={(e) => onChange(index, 'value', e.target.value)}
+              disabled={disabled && choice.id}
+            />
+
+            <input
+              type="text"
+              className="field-choice-label field-input"
+              placeholder="Label"
+              value={choice.label}
+              onChange={(e) => onChange(index, 'label', e.target.value)}
+            />
+
+            <input
+              type="text"
+              className="field-choice-icon field-input"
+              placeholder="icon"
+              value={choice.icon || ''}
+              onChange={(e) => onChange(index, 'icon', e.target.value)}
+            />
+
+            <button
+              type="button"
+              className="field-choice-remove"
+              onClick={() => onRemove(index)}
+              disabled={choices.length <= 1}
+            >✕</button>
+          </div>
+        ))}
+      </div>
+
+      <p className="field-choices-note">
+        <strong>value:</strong> internal key (no spaces) &nbsp;|&nbsp;
+        <strong>Label:</strong> shown to users
+      </p>
+    </div>
+  )
+
+  // ─────────────────────────────────────────────────────────────
+  // RENDER
+  // ─────────────────────────────────────────────────────────────
   return (
     <div>
       <Navbar />
-      <main className="mod-main">
-        <div className="mod-layout" style={{ maxWidth: 900, margin: '0 auto' }}>
-          <section className="mod-content" style={{ flex: 1 }}>
+      <main className="page-container">
+        <div className="fields-box">
 
-            <div className="mod-detail-header" style={{ marginBottom: 8 }}>
-              <h2>Field Definitions</h2>
-              <span className="mod-badge">{slug}</span>
-            </div>
-            <p style={{ fontSize: 14, color: 'var(--text-light)', marginBottom: 24 }}>
-              Define the fields contributors fill in for venues in this category.
-            </p>
+          <div className="fields-header">
+            <h2>Field Definitions</h2>
+            <span className="fields-slug">{slug}</span>
+          </div>
 
-            {/* FIELD MANAGER */}
-            <div className="field-manager">
-              <div className="field-manager-header">
-                <h3>Fields</h3>
-                <button className="field-btn-add" onClick={openAddForm}>+ Add Field</button>
-              </div>
+          <div className="fields-actions">
+            <button className="btn-secondary" onClick={() => navigate(`/category/${slug}`)}>
+              ← Back to Category
+            </button>
+          </div>
 
-              {loading ? (
-                <p className="mod-empty">Loading fields...</p>
-              ) : fields.length === 0 ? (
-                <p className="mod-empty">No fields defined yet. Add your first field.</p>
-              ) : (
-                <table className="field-table">
-                  <thead>
-                    <tr>
-                      <th>Order</th>
-                      <th>Name</th>
-                      <th>Label</th>
-                      <th>Type</th>
-                      <th>Required</th>
-                      <th>Help Text</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {fields.map(f => (
-                      <tr key={f.id}>
-                        <td>{f.order}</td>
-                        <td><code>{f.name}</code></td>
-                        <td>{f.label}</td>
-                        <td>{FIELD_TYPES.find(t => t.value === f.field_type)?.label || f.field_type}</td>
-                        <td>{f.is_required ? '✅' : '—'}</td>
-                        <td className="field-help-text">{f.help_text || '—'}</td>
-                        <td className="field-actions">
-                          <button className="field-btn-edit" onClick={() => openEditForm(f)}>Edit</button>
-                          <button className="field-btn-delete" onClick={() => handleDelete(f)}>Delete</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
+          {/* FIELD LIST */}
+          {loading ? (
+            <p className="fields-empty">Loading...</p>
+          ) : fields.length === 0 && !showAdd ? (
+            <p className="fields-empty">No fields yet. Add your first field below.</p>
+          ) : (
+            <ul className="fields-list">
+              {fields.map(field => (
+                <li key={field.id} className="field-item">
+                  {editingId === field.id ? (
+                    /* EDIT MODE */
+                    <div className="field-edit-form">
+                      {error && <p className="field-error" style={{ color: '#c00', fontSize: 13 }}>{error}</p>}
 
-            {/* DONE BUTTON */}
-            <div style={{ marginTop: 32, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
-              <button className="field-btn-save" onClick={() => navigate(`/category/${slug}`)}>
-                Done → Go to Map
-              </button>
-            </div>
+                      <input
+                        className="field-input"
+                        name="label"
+                        placeholder="Label"
+                        value={editForm.label}
+                        onChange={handleEditChange}
+                      />
 
-          </section>
-        </div>
-      </main>
+                      <input
+                        className="field-input"
+                        name="help_text"
+                        placeholder="Help text (optional)"
+                        value={editForm.help_text}
+                        onChange={handleEditChange}
+                      />
 
-      {/* MODAL */}
-      {showForm && (
-        <div className="field-modal-overlay" onClick={closeForm}>
-          <div className="field-modal" onClick={e => e.stopPropagation()}>
-            <div className="field-modal-header">
-              <h3>{editingField ? 'Edit Field' : 'Add New Field'}</h3>
-              <button className="field-modal-close" onClick={closeForm}>✕</button>
-            </div>
-            {error && <p className="field-error">{error}</p>}
-            <div className="field-form-grid">
-              <div className="field-form-group">
-                <label>Field Name <span className="field-required">*</span></label>
-                <input name="name" value={form.name} onChange={handleChange}
-                  placeholder="e.g. wifi_speed" disabled={!!editingField} />
-                {editingField && <small>Name cannot be changed after creation.</small>}
-              </div>
-              <div className="field-form-group">
-                <label>Display Label <span className="field-required">*</span></label>
-                <input name="label" value={form.label} onChange={handleChange}
-                  placeholder="e.g. WiFi Speed (Mbps)" />
-              </div>
-              <div className="field-form-group">
-                <label>Field Type</label>
-                <select name="field_type" value={form.field_type} onChange={handleChange}
-                  disabled={!!editingField}>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <input
+                          className="field-input"
+                          name="order"
+                          type="number"
+                          placeholder="Order"
+                          value={editForm.order}
+                          onChange={handleEditChange}
+                          style={{ width: 80 }}
+                        />
+                        <select
+                          className="field-select"
+                          name="field_type"
+                          value={editForm.field_type}
+                          disabled
+                        >
+                          {FIELD_TYPES.map(t => (
+                            <option key={t.value} value={t.value}>{t.label}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="field-checkboxes">
+                        <label>
+                          <input
+                            type="checkbox"
+                            name="is_required"
+                            checked={editForm.is_required}
+                            onChange={handleEditChange}
+                          /> Required
+                        </label>
+                        <label>
+                          <input
+                            type="checkbox"
+                            name="is_public"
+                            checked={editForm.is_public}
+                            onChange={handleEditChange}
+                          /> Public
+                        </label>
+                      </div>
+
+                      {/* CHOICES EDITOR */}
+                      {isChoiceField(editForm.field_type) && renderChoicesEditor(
+                        editChoices,
+                        handleEditChoiceChange,
+                        addEditChoice,
+                        removeEditChoice,
+                        moveEditChoice,
+                        true // existing choices value disabled
+                      )}
+
+                      <div className="field-edit-btns">
+                        <button className="btn-save" onClick={saveEdit} disabled={saving}>
+                          {saving ? 'Saving...' : 'Save'}
+                        </button>
+                        <button className="btn-cancel" onClick={cancelEdit}>Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* VIEW MODE */
+                    <div className="field-row">
+                      <div className="field-info">
+                        <span className="field-label">{field.label}</span>
+                        <span className="field-type-badge">
+                          {FIELD_TYPES.find(t => t.value === field.field_type)?.label || field.field_type}
+                        </span>
+                        {isChoiceField(field.field_type) && field.choices_count > 0 && (
+                          <span className="field-choices-count">({field.choices_count} options)</span>
+                        )}
+                        {field.is_required && <span className="field-badge required">required</span>}
+                        {field.is_public && <span className="field-badge public">public</span>}
+                        {field.help_text && <span className="field-help">{field.help_text}</span>}
+                      </div>
+                      <div className="field-btns">
+                        <button className="btn-edit" onClick={() => startEdit(field)}>Edit</button>
+                        <button className="btn-delete" onClick={() => deleteField(field)}>Delete</button>
+                      </div>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {/* ADD NEW FIELD */}
+          {showAdd ? (
+            <div className="field-edit-form" style={{ marginBottom: 24 }}>
+              <h3 className="fields-add-title">Add New Field</h3>
+
+              {error && <p style={{ color: '#c00', fontSize: 13 }}>{error}</p>}
+
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  className="field-input"
+                  name="name"
+                  placeholder="Field name (e.g. wifi_speed)"
+                  value={addForm.name}
+                  onChange={handleAddChange}
+                  style={{ flex: 1 }}
+                />
+                <select
+                  className="field-select"
+                  name="field_type"
+                  value={addForm.field_type}
+                  onChange={handleAddChange}
+                  style={{ width: 160 }}
+                >
                   {FIELD_TYPES.map(t => (
                     <option key={t.value} value={t.value}>{t.label}</option>
                   ))}
                 </select>
-                {editingField && <small>Type cannot be changed after creation.</small>}
               </div>
-              <div className="field-form-group">
-                <label>Order</label>
-                <input name="order" type="number" value={form.order}
-                  onChange={handleChange} min="0" />
-              </div>
-              <div className="field-form-group field-form-full">
-                <label>Help Text</label>
-                <input name="help_text" value={form.help_text} onChange={handleChange}
-                  placeholder="Hint shown to users filling in this field" />
-              </div>
-              <div className="field-form-group field-form-checkboxes">
+
+              <input
+                className="field-input"
+                name="label"
+                placeholder="Display label (e.g. WiFi Speed)"
+                value={addForm.label}
+                onChange={handleAddChange}
+              />
+
+              <input
+                className="field-input"
+                name="help_text"
+                placeholder="Help text (optional)"
+                value={addForm.help_text}
+                onChange={handleAddChange}
+              />
+
+              <input
+                className="field-input"
+                name="order"
+                type="number"
+                placeholder="Order"
+                value={addForm.order}
+                onChange={handleAddChange}
+                style={{ width: 80 }}
+              />
+
+              <div className="field-checkboxes">
                 <label>
-                  <input type="checkbox" name="is_required" checked={form.is_required}
-                    onChange={handleChange} />
-                  Required
+                  <input
+                    type="checkbox"
+                    name="is_required"
+                    checked={addForm.is_required}
+                    onChange={handleAddChange}
+                  /> Required
                 </label>
                 <label>
-                  <input type="checkbox" name="is_public" checked={form.is_public}
-                    onChange={handleChange} />
-                  Public
+                  <input
+                    type="checkbox"
+                    name="is_public"
+                    checked={addForm.is_public}
+                    onChange={handleAddChange}
+                  /> Public
                 </label>
               </div>
+
+              {/* CHOICES EDITOR FOR NEW FIELD */}
+              {isChoiceField(addForm.field_type) && renderChoicesEditor(
+                addChoices,
+                handleAddChoiceChange,
+                addAddChoice,
+                removeAddChoice,
+                moveAddChoice,
+                false
+              )}
+
+              <div className="field-edit-btns">
+                <button className="btn-save" onClick={saveAdd} disabled={saving}>
+                  {saving ? 'Saving...' : 'Add Field'}
+                </button>
+                <button className="btn-cancel" onClick={cancelAdd}>Cancel</button>
+              </div>
             </div>
-            <div className="field-modal-actions">
-              <button className="field-btn-cancel" onClick={closeForm}>Cancel</button>
-              <button className="field-btn-save" onClick={handleSave} disabled={saving}>
-                {saving ? 'Saving...' : editingField ? 'Save Changes' : 'Add Field'}
-              </button>
-            </div>
+          ) : (
+            <button className="btn-edit" onClick={openAdd}>+ Add Field</button>
+          )}
+
+          {/* DONE */}
+          <div className="fields-done">
+            <button className="btn-save" onClick={() => navigate(`/category/${slug}`)}>
+              Done → Go to Map
+            </button>
           </div>
+
         </div>
-      )}
+      </main>
     </div>
   )
 }

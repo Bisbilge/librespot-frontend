@@ -772,3 +772,420 @@
   color: #666;
   white-space: nowrap;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   CHOICE FIELD STYLES
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Single Choice (Radio Group) */
+.field-choice-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.field-choice-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.15s ease;
+}
+
+.field-choice-option:hover {
+  border-color: var(--link);
+  background: var(--accent);
+}
+
+.field-choice-option.selected {
+  border-color: var(--link);
+  background: rgba(0, 102, 204, 0.08);
+}
+
+.field-choice-option input[type="radio"] {
+  display: none;
+}
+
+.choice-icon {
+  font-size: 14px;
+}
+
+.choice-label {
+  color: var(--text);
+}
+
+.field-choice-clear {
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-light);
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.field-choice-clear:hover {
+  color: var(--link);
+}
+
+/* Select Dropdown for Choice */
+.field-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+  cursor: pointer;
+}
+
+.field-select:focus {
+  outline: none;
+  border-color: var(--link);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MULTI-CHOICE FIELD STYLES (Checkboxes)
+   ═══════════════════════════════════════════════════════════════ */
+
+.field-multichoice-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-multichoice-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.15s ease;
+}
+
+.field-multichoice-option:hover {
+  border-color: var(--link);
+  background: var(--accent);
+}
+
+.field-multichoice-option.selected {
+  border-color: var(--link);
+  background: rgba(0, 102, 204, 0.08);
+}
+
+.field-multichoice-option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--link);
+}
+
+.field-multichoice-summary {
+  font-size: 12px;
+  color: var(--text-light);
+  padding-top: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .field-choice-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .field-choice-option {
+    justify-content: center;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CHOICE FIELD STYLES
+   ═══════════════════════════════════════════════════════════════ */
+
+.field-choices-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.field-choices-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.field-choices-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.field-choices-hint {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-bottom: 12px;
+}
+
+.field-choices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-choice-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: #f9f9f9;
+  border: 1px solid var(--border);
+}
+
+.field-choice-order {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.field-choice-move {
+  width: 22px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: white;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+.field-choice-move:hover:not(:disabled) {
+  background: var(--link);
+  color: white;
+  border-color: var(--link);
+}
+
+.field-choice-move:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.field-choice-value,
+.field-choice-label,
+.field-choice-icon {
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.field-choice-value {
+  flex: 1;
+  min-width: 100px;
+}
+
+.field-choice-label {
+  flex: 1.5;
+  min-width: 120px;
+}
+
+.field-choice-icon {
+  width: 70px;
+}
+
+.field-choice-value:disabled {
+  background: #f0f0f0;
+  color: #888;
+}
+
+.field-choice-remove {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #c00;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.field-choice-remove:hover:not(:disabled) {
+  background: #fff0f0;
+}
+
+.field-choice-remove:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.field-btn-add-choice {
+  padding: 4px 10px;
+  background: white;
+  border: 1px dashed var(--border);
+  color: var(--link);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.field-btn-add-choice:hover {
+  border-color: var(--link);
+  background: #f8f8ff;
+}
+
+.field-choices-note {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+.field-choices-note strong {
+  color: var(--text);
+}
+
+.field-choices-count {
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+.field-modal-large {
+  max-width: 700px;
+  width: 95%;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PAGINATION STYLES
+   ═══════════════════════════════════════════════════════════════ */
+
+.venue-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.venue-page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.venue-page-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.venue-page-btn:hover:not(:disabled) {
+  background: #f0f0f0;
+  border-color: var(--link);
+}
+
+.venue-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.venue-page-btn-active {
+  background: var(--link);
+  color: white;
+  border-color: var(--link);
+}
+
+.venue-page-dots {
+  padding: 0 4px;
+  color: var(--text-light);
+}
+
+.venue-page-info {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.venue-search {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  font-size: 13px;
+  width: 200px;
+}
+
+.venue-search:focus {
+  outline: none;
+  border-color: var(--link);
+}
+
+.venue-count {
+  font-weight: normal;
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+.venue-manager-link {
+  color: var(--link);
+  text-decoration: none;
+}
+
+.venue-manager-link:hover {
+  text-decoration: underline;
+}
+
+/* Tab badge */
+.mod-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  margin-left: 6px;
+  background: #c00;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 9px;
+}
+
+@media (max-width: 600px) {
+  .field-choice-row {
+    flex-wrap: wrap;
+  }
+  
+  .field-choice-value,
+  .field-choice-label {
+    flex: 1 1 100%;
+    min-width: auto;
+  }
+  
+  .field-choice-icon {
+    flex: 1;
+  }
+  
+  .venue-pagination {
+    justify-content: center;
+  }
+  
+  .venue-page-info {
+    width: 100%;
+    text-align: center;
+    margin-left: 0;
+    margin-top: 8px;
+  }
+}
